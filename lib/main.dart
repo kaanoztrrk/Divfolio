@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'core/routes/app_router.dart';
 import 'core/routes/app_routes.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
