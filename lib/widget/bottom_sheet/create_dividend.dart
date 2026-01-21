@@ -1,3 +1,5 @@
+import 'package:divfolio/core/routes/app_router.dart';
+import 'package:divfolio/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class CreateDividendSheet {
@@ -15,14 +17,14 @@ class CreateDividendSheet {
                 leading: const Icon(Icons.add_chart),
                 title: const Text('Add Holding'),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.popAndPushNamed(context, AppRoutes.addHolding);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.attach_money),
                 title: const Text('Add Dividend'),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.popAndPushNamed(context, AppRoutes.addDividend);
                 },
               ),
             ],
