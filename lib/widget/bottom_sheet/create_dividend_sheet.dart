@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 class CreateDividendSheet {
   static void openAddSheet(BuildContext context) {
+    final nav = Navigator.of(context); // parent navigator'ı yakala
+
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -17,14 +19,16 @@ class CreateDividendSheet {
                 leading: const Icon(Icons.add_chart),
                 title: const Text('Add Holding'),
                 onTap: () {
-                  Navigator.popAndPushNamed(context, AppRoutes.addHolding);
+                  nav.pop(); // sheet kapanır
+                  nav.pushNamed(AppRoutes.addHolding); // sonra route
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.attach_money),
                 title: const Text('Add Dividend'),
                 onTap: () {
-                  Navigator.popAndPushNamed(context, AppRoutes.addDividend);
+                  nav.pop();
+                  nav.pushNamed(AppRoutes.addDividend);
                 },
               ),
             ],

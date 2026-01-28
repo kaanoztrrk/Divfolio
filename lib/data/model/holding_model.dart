@@ -1,83 +1,87 @@
-import 'package:meta/meta.dart';
+import 'package:hive/hive.dart';
 
-@immutable
-class Holding {
-  const Holding({
+import 'hive_type_ids.dart';
+
+@HiveType(typeId: HiveTypeIds.holding)
+class HoldingModel {
+  HoldingModel({
     required this.id,
     required this.portfolioId,
-    required this.companyId, // Company.id reference
-    required this.shares, // kullanıcı pozisyonu
-    this.avgCost, // optional: ileride ROI vs
-    this.currencyCode, // optional: cost currency; yoksa company currency
+    required this.companyId,
+    required this.shares,
+    this.avgCost,
+    this.currencyCode,
     required this.createdAt,
     this.updatedAt,
   });
 
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String portfolioId;
+
+  @HiveField(2)
   final String companyId;
 
+  @HiveField(3)
   final double shares;
 
-  /// Ortalama maliyet (isteğe bağlı). MVP’de kullanmak zorunda değilsin.
+  @HiveField(4)
   final double? avgCost;
 
-  /// Maliyet para birimi. (Çoklu para birimi işine girersen lazım.)
+  @HiveField(5)
   final String? currencyCode;
 
+  @HiveField(6)
   final DateTime createdAt;
+
+  @HiveField(7)
   final DateTime? updatedAt;
+}
 
-  Holding copyWith({
-    String? id,
-    String? portfolioId,
-    String? companyId,
-    double? shares,
-    double? avgCost,
-    String? currencyCode,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return Holding(
-      id: id ?? this.id,
-      portfolioId: portfolioId ?? this.portfolioId,
-      companyId: companyId ?? this.companyId,
-      shares: shares ?? this.shares,
-      avgCost: avgCost ?? this.avgCost,
-      currencyCode: currencyCode ?? this.currencyCode,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+class HoldingModelAdapter extends TypeAdapter<HoldingModel> {
+  @override
+  final int typeId = HiveTypeIds.holding;
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'portfolioId': portfolioId,
-    'companyId': companyId,
-    'shares': shares,
-    'avgCost': avgCost,
-    'currencyCode': currencyCode,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt?.toIso8601String(),
-  };
-
-  factory Holding.fromJson(Map<String, dynamic> json) {
-    return Holding(
-      id: json['id'] as String,
-      portfolioId: json['portfolioId'] as String,
-      companyId: json['companyId'] as String,
-      shares: (json['shares'] as num).toDouble(),
-      avgCost: json['avgCost'] == null
-          ? null
-          : (json['avgCost'] as num).toDouble(),
-      currencyCode: json['currencyCode'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
+  @override
+  HoldingModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{};
+    for (var i = 0; i < numOfFields; i++) {
+      fields[reader.readByte()] = reader.read();
+    }
+    return HoldingModel(
+      id: fields[0] as String,
+      portfolioId: fields[1] as String,
+      companyId: fields[2] as String,
+      shares: (fields[3] as num).toDouble(),
+      avgCost: fields[4] == null ? null : (fields[4] as num).toDouble(),
+      currencyCode: fields[5] as String?,
+      createdAt: fields[6] as DateTime,
+      updatedAt: fields[7] as DateTime?,
     );
   }
 
   @override
-  String toString() => 'Holding(companyId: $companyId, shares: $shares)';
+  void write(BinaryWriter writer, HoldingModel obj) {
+    writer
+      ..writeByte(8)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.portfolioId)
+      ..writeByte(2)
+      ..write(obj.companyId)
+      ..writeByte(3)
+      ..write(obj.shares)
+      ..writeByte(4)
+      ..write(obj.avgCost)
+      ..writeByte(5)
+      ..write(obj.currencyCode)
+      ..writeByte(6)
+      ..write(obj.createdAt)
+      ..writeByte(7)
+      ..write(obj.updatedAt);
+  }
 }

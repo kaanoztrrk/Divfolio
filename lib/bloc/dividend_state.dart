@@ -1,23 +1,21 @@
 import 'package:equatable/equatable.dart';
-
 import '../data/model/dividend_model.dart';
 
 class DividendState extends Equatable {
   final bool loading;
   final String? error;
 
-  /// UI context
+  // UI context
   final String? selectedPortfolioId;
   final String? selectedCompanyId;
 
-  /// Data
-  final List<Dividend> dividends;
+  // data
+  final List<DividendModel> dividends;
 
-  /// Summary (opsiyonel ekran)
+  // summary
   final int? summaryYear;
-  final Map<String, double> totalsByCurrency; // currency -> total net
-  final Map<String, Map<String, double>>
-  byCompanyByCurrency; // companyId -> (currency -> total)
+  final Map<String, double> totalsByCurrency;
+  final Map<String, Map<String, double>> byCompanyByCurrency;
 
   const DividendState({
     this.loading = false,
@@ -32,20 +30,35 @@ class DividendState extends Equatable {
 
   DividendState copyWith({
     bool? loading,
+
+    // error kontrolü:
     String? error,
+    bool clearError = false,
+
+    // portfolio/company kontrolü:
     String? selectedPortfolioId,
     String? selectedCompanyId,
-    List<Dividend>? dividends,
+    bool clearCompanyFilter = false,
+
+    List<DividendModel>? dividends,
+
     int? summaryYear,
     Map<String, double>? totalsByCurrency,
     Map<String, Map<String, double>>? byCompanyByCurrency,
   }) {
     return DividendState(
       loading: loading ?? this.loading,
-      error: error,
+
+      error: clearError ? null : (error ?? this.error),
+
       selectedPortfolioId: selectedPortfolioId ?? this.selectedPortfolioId,
-      selectedCompanyId: selectedCompanyId,
+
+      selectedCompanyId: clearCompanyFilter
+          ? null
+          : (selectedCompanyId ?? this.selectedCompanyId),
+
       dividends: dividends ?? this.dividends,
+
       summaryYear: summaryYear ?? this.summaryYear,
       totalsByCurrency: totalsByCurrency ?? this.totalsByCurrency,
       byCompanyByCurrency: byCompanyByCurrency ?? this.byCompanyByCurrency,
@@ -55,11 +68,11 @@ class DividendState extends Equatable {
   @override
   List<Object?> get props => [
     loading,
-    error ?? '',
-    selectedPortfolioId ?? '',
-    selectedCompanyId ?? '',
+    error,
+    selectedPortfolioId,
+    selectedCompanyId,
     dividends,
-    summaryYear ?? -1,
+    summaryYear,
     totalsByCurrency,
     byCompanyByCurrency,
   ];

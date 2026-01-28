@@ -6,9 +6,6 @@ import 'dividend_event.dart';
 import 'dividend_state.dart';
 
 class DividendBloc extends Bloc<DividendEvent, DividendState> {
-  final DivfolioRepository _repository;
-  final LogService _log = LogService.instance;
-
   DividendBloc(this._repository) : super(const DividendState()) {
     on<LoadDividends>(_onLoadDividends);
     on<LoadDividendsByCompany>(_onLoadDividendsByCompany);
@@ -18,28 +15,29 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     on<ResetDividendState>((event, emit) => emit(const DividendState()));
   }
 
+  final DividendRepository _repository;
+  final LogService _log = LogService.instance;
+
   Future<void> _onLoadDividends(
     LoadDividends event,
     Emitter<DividendState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
-
+    emit(state.copyWith(loading: true, clearError: true));
     try {
-      final list = _repository.getDividends(event.portfolioId);
-
-      _log.debug("✅ Dividends loaded. count=${list.length}", tag: 'DIVIDEND');
+      final list = await _repository.getDividends(event.portfolioId);
 
       emit(
         state.copyWith(
           loading: false,
           dividends: list,
           selectedPortfolioId: event.portfolioId,
-          selectedCompanyId: null,
-          error: null,
+          clearCompanyFilter: true, // <-- ALL dividends ekranı
         ),
       );
+
+      _log.debug("✅ Dividends loaded. count=${list.length}", tag: 'DIVIDEND');
     } catch (e, s) {
-      _log.error("❌ LoadDividends error: $e", tag: 'DIVIDEND', stackTrace: s);
+      _log.error("❌ LoadDividends: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
   }
@@ -48,17 +46,11 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     LoadDividendsByCompany event,
     Emitter<DividendState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
-
+    emit(state.copyWith(loading: true, clearError: true));
     try {
-      final list = _repository.getDividendsByCompany(
+      final list = await _repository.getDividendsByCompany(
         portfolioId: event.portfolioId,
         companyId: event.companyId,
-      );
-
-      _log.debug(
-        "✅ Dividends loaded by company. count=${list.length}",
-        tag: 'DIVIDEND',
       );
 
       emit(
@@ -67,12 +59,16 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
           dividends: list,
           selectedPortfolioId: event.portfolioId,
           selectedCompanyId: event.companyId,
-          error: null,
         ),
+      );
+
+      _log.debug(
+        "✅ Dividends by company loaded. count=${list.length}",
+        tag: 'DIVIDEND',
       );
     } catch (e, s) {
       _log.error(
-        "❌ LoadDividendsByCompany error: $e",
+        "❌ LoadDividendsByCompany: $e",
         tag: 'DIVIDEND',
         stackTrace: s,
       );
@@ -84,34 +80,41 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     UpsertDividend event,
     Emitter<DividendState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(state.copyWith(loading: true, clearError: true));
 
     try {
-      _repository.upsertDividend(event.dividend);
+      await _repository.upsertDividend(event.dividend);
 
-      _log.debug(
-        "✅ Dividend upserted. id=${event.dividend.id}",
-        tag: 'DIVIDEND',
-      );
-
-      // UI contextine göre refresh
       final pid = event.dividend.portfolioId;
-      final cid = state.selectedCompanyId;
 
-      final list = (cid == null)
-          ? _repository.getDividends(pid)
-          : _repository.getDividendsByCompany(portfolioId: pid, companyId: cid);
+      // Mevcut filtre var mı? Varsa sadece aynı company için ekleme yapıldıysa filtreyi koru.
+      final currentFilterCompanyId = state.selectedCompanyId;
+      final keepCompanyFilter =
+          currentFilterCompanyId != null &&
+          currentFilterCompanyId == event.dividend.companyId;
+
+      final list = keepCompanyFilter
+          ? await _repository.getDividendsByCompany(
+              portfolioId: pid,
+              companyId: currentFilterCompanyId,
+            )
+          : await _repository.getDividends(pid);
 
       emit(
         state.copyWith(
           loading: false,
           dividends: list,
           selectedPortfolioId: pid,
-          error: null,
+          selectedCompanyId: keepCompanyFilter ? currentFilterCompanyId : null,
         ),
       );
+
+      _log.debug(
+        "✅ Dividend upserted. id=${event.dividend.id}",
+        tag: 'DIVIDEND',
+      );
     } catch (e, s) {
-      _log.error("❌ UpsertDividend error: $e", tag: 'DIVIDEND', stackTrace: s);
+      _log.error("❌ UpsertDividend: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
   }
@@ -120,28 +123,30 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     DeleteDividend event,
     Emitter<DividendState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(state.copyWith(loading: true, clearError: true));
 
     try {
-      _repository.deleteDividend(event.dividendId);
+      await _repository.deleteDividend(event.dividendId);
 
-      _log.debug("✅ Dividend deleted. id=${event.dividendId}", tag: 'DIVIDEND');
-
-      // Refresh: state’de seçili portfolio yoksa sadece loading kapat
       final pid = state.selectedPortfolioId;
       if (pid == null) {
-        emit(state.copyWith(loading: false, error: null));
+        emit(state.copyWith(loading: false));
         return;
       }
 
       final cid = state.selectedCompanyId;
       final list = (cid == null)
-          ? _repository.getDividends(pid)
-          : _repository.getDividendsByCompany(portfolioId: pid, companyId: cid);
+          ? await _repository.getDividends(pid)
+          : await _repository.getDividendsByCompany(
+              portfolioId: pid,
+              companyId: cid,
+            );
 
-      emit(state.copyWith(loading: false, dividends: list, error: null));
+      emit(state.copyWith(loading: false, dividends: list));
+
+      _log.debug("✅ Dividend deleted. id=${event.dividendId}", tag: 'DIVIDEND');
     } catch (e, s) {
-      _log.error("❌ DeleteDividend error: $e", tag: 'DIVIDEND', stackTrace: s);
+      _log.error("❌ DeleteDividend: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
   }
@@ -150,21 +155,19 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     LoadDividendSummary event,
     Emitter<DividendState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(state.copyWith(loading: true, clearError: true));
 
     try {
-      final totalsByCurrency = _repository.getTotalNetDividendsByCurrency(
+      final totalsByCurrency = await _repository.getTotalNetDividendsByCurrency(
         portfolioId: event.portfolioId,
         year: event.year,
       );
 
-      final byCompanyByCurrency = _repository
+      final byCompanyByCurrency = await _repository
           .getNetDividendsByCompanyByCurrency(
             portfolioId: event.portfolioId,
             year: event.year,
           );
-
-      _log.debug("✅ Dividend summary loaded.", tag: 'DIVIDEND');
 
       emit(
         state.copyWith(
@@ -173,15 +176,12 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
           summaryYear: event.year,
           totalsByCurrency: totalsByCurrency,
           byCompanyByCurrency: byCompanyByCurrency,
-          error: null,
         ),
       );
+
+      _log.debug("✅ Dividend summary loaded.", tag: 'DIVIDEND');
     } catch (e, s) {
-      _log.error(
-        "❌ LoadDividendSummary error: $e",
-        tag: 'DIVIDEND',
-        stackTrace: s,
-      );
+      _log.error("❌ LoadDividendSummary: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
   }

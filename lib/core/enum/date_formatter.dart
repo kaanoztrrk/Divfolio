@@ -48,8 +48,8 @@ extension AppDateFormatX on AppDateFormat {
     return DateFormat(pattern, locale).format(date);
   }
 
-  String preview({String? locale}) {
-    final sample = DateTime(2023, 10, 24);
-    return format(sample, locale: locale);
+  String previewNow({String? locale}) {
+    final now = DateTime.now();
+    return format(now, locale: locale);
   }
 }

@@ -39,7 +39,7 @@ class _PayDateFieldState extends State<PayDateField> {
   }
 
   void _syncText() {
-    final fmt = context.read<DateFormatCubit>().state.format;
+    final fmt = context.read<DateFormatCubit>().state.selected;
     _controller.text = fmt.format(_selected);
   }
 
@@ -87,7 +87,7 @@ class _PayDateFieldState extends State<PayDateField> {
                     TextButton(
                       onPressed: () {
                         setState(() => _selected = temp);
-                        _controller.text = fmtCubit.state.format.format(
+                        _controller.text = fmtCubit.state.selected.format(
                           _selected,
                         );
                         widget.onChanged?.call(_selected);
@@ -119,7 +119,7 @@ class _PayDateFieldState extends State<PayDateField> {
     );
 
     // Format değişmiş olabilir; güvenli güncelle
-    _controller.text = context.read<DateFormatCubit>().state.format.format(
+    _controller.text = context.read<DateFormatCubit>().state.selected.format(
       _selected,
     );
   }
@@ -128,7 +128,7 @@ class _PayDateFieldState extends State<PayDateField> {
   Widget build(BuildContext context) {
     // Cubit değişince rebuild olsun
     final fmt = context.select<DateFormatCubit, AppDateFormat>(
-      (c) => c.state.format,
+      (c) => c.state.selected,
     );
 
     // UI text güncelle

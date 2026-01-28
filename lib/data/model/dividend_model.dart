@@ -1,51 +1,58 @@
-import 'package:meta/meta.dart';
+import 'package:hive/hive.dart';
 
-@immutable
-class Dividend {
-  const Dividend({
+import 'hive_type_ids.dart';
+
+@HiveType(typeId: HiveTypeIds.dividend)
+class DividendModel {
+  DividendModel({
     required this.id,
     required this.portfolioId,
     required this.companyId,
     required this.payDate,
-
-    /// Bu kayıt oluşturulurken elde tutulan lot.
-    /// (Holding sonradan değişse bile geçmiş kayıt bozulmasın.)
     required this.sharesAtPayDate,
-
-    /// Hisse başı brüt temettü
     required this.dividendPerShare,
-
-    /// Ödeme para birimi (genelde company currency)
     required this.currencyCode,
-
-    /// 0.15 = %15 (opsiyonel)
     this.taxRate,
-
-    /// Eğer broker net tutar veriyorsa doğrudan net de girebilirsin (opsiyonel).
-    /// Verilirse hesaplamalarda net tercih edilebilir.
     this.netOverride,
-
     this.notes,
     required this.createdAt,
     this.updatedAt,
   });
 
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String portfolioId;
+
+  @HiveField(2)
   final String companyId;
 
+  @HiveField(3)
   final DateTime payDate;
 
+  @HiveField(4)
   final double sharesAtPayDate;
+
+  @HiveField(5)
   final double dividendPerShare;
+
+  @HiveField(6)
   final String currencyCode;
 
+  @HiveField(7)
   final double? taxRate;
+
+  @HiveField(8)
   final double? netOverride;
 
+  @HiveField(9)
   final String? notes;
 
+  @HiveField(10)
   final DateTime createdAt;
+
+  @HiveField(11)
   final DateTime? updatedAt;
 
   double get grossAmount => sharesAtPayDate * dividendPerShare;
@@ -55,76 +62,62 @@ class Dividend {
     final rate = taxRate ?? 0.0;
     return grossAmount * (1 - rate);
   }
+}
 
-  Dividend copyWith({
-    String? id,
-    String? portfolioId,
-    String? companyId,
-    DateTime? payDate,
-    double? sharesAtPayDate,
-    double? dividendPerShare,
-    String? currencyCode,
-    double? taxRate,
-    double? netOverride,
-    String? notes,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return Dividend(
-      id: id ?? this.id,
-      portfolioId: portfolioId ?? this.portfolioId,
-      companyId: companyId ?? this.companyId,
-      payDate: payDate ?? this.payDate,
-      sharesAtPayDate: sharesAtPayDate ?? this.sharesAtPayDate,
-      dividendPerShare: dividendPerShare ?? this.dividendPerShare,
-      currencyCode: currencyCode ?? this.currencyCode,
-      taxRate: taxRate ?? this.taxRate,
-      netOverride: netOverride ?? this.netOverride,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+class DividendModelAdapter extends TypeAdapter<DividendModel> {
+  @override
+  final int typeId = HiveTypeIds.dividend;
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'portfolioId': portfolioId,
-    'companyId': companyId,
-    'payDate': payDate.toIso8601String(),
-    'sharesAtPayDate': sharesAtPayDate,
-    'dividendPerShare': dividendPerShare,
-    'currencyCode': currencyCode,
-    'taxRate': taxRate,
-    'netOverride': netOverride,
-    'notes': notes,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt?.toIso8601String(),
-  };
-
-  factory Dividend.fromJson(Map<String, dynamic> json) {
-    return Dividend(
-      id: json['id'] as String,
-      portfolioId: json['portfolioId'] as String,
-      companyId: json['companyId'] as String,
-      payDate: DateTime.parse(json['payDate'] as String),
-      sharesAtPayDate: (json['sharesAtPayDate'] as num).toDouble(),
-      dividendPerShare: (json['dividendPerShare'] as num).toDouble(),
-      currencyCode: json['currencyCode'] as String,
-      taxRate: json['taxRate'] == null
-          ? null
-          : (json['taxRate'] as num).toDouble(),
-      netOverride: json['netOverride'] == null
-          ? null
-          : (json['netOverride'] as num).toDouble(),
-      notes: json['notes'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
+  @override
+  DividendModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{};
+    for (var i = 0; i < numOfFields; i++) {
+      fields[reader.readByte()] = reader.read();
+    }
+    return DividendModel(
+      id: fields[0] as String,
+      portfolioId: fields[1] as String,
+      companyId: fields[2] as String,
+      payDate: fields[3] as DateTime,
+      sharesAtPayDate: (fields[4] as num).toDouble(),
+      dividendPerShare: (fields[5] as num).toDouble(),
+      currencyCode: fields[6] as String,
+      taxRate: fields[7] == null ? null : (fields[7] as num).toDouble(),
+      netOverride: fields[8] == null ? null : (fields[8] as num).toDouble(),
+      notes: fields[9] as String?,
+      createdAt: fields[10] as DateTime,
+      updatedAt: fields[11] as DateTime?,
     );
   }
 
   @override
-  String toString() =>
-      'Dividend(companyId: $companyId, date: $payDate, net: $netAmount $currencyCode)';
+  void write(BinaryWriter writer, DividendModel obj) {
+    writer
+      ..writeByte(12)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.portfolioId)
+      ..writeByte(2)
+      ..write(obj.companyId)
+      ..writeByte(3)
+      ..write(obj.payDate)
+      ..writeByte(4)
+      ..write(obj.sharesAtPayDate)
+      ..writeByte(5)
+      ..write(obj.dividendPerShare)
+      ..writeByte(6)
+      ..write(obj.currencyCode)
+      ..writeByte(7)
+      ..write(obj.taxRate)
+      ..writeByte(8)
+      ..write(obj.netOverride)
+      ..writeByte(9)
+      ..write(obj.notes)
+      ..writeByte(10)
+      ..write(obj.createdAt)
+      ..writeByte(11)
+      ..write(obj.updatedAt);
+  }
 }

@@ -72,4 +72,44 @@ class AppColors {
 
   /// subtle shadow/overlay tint
   static const overlay = Color(0x0F0F172A);
+
+  // ---------------------------------------------------------------------------
+  // BACKGROUND COLORS (DARK)
+  // ---------------------------------------------------------------------------
+
+  /// App main background (deep slate)
+  static const backgroundDark = Color(0xFF0B1220);
+
+  /// Card, sheet, container background
+  static const surfaceDark = Color(0xFF121A2B);
+
+  /// Elevated surfaces
+  static const surfaceHighDark = Color(0xFF1A2338);
+
+  // ---------------------------------------------------------------------------
+  // TEXT COLORS (DARK)
+  // ---------------------------------------------------------------------------
+
+  /// Main readable text (near-white)
+  static const textPrimaryDark = Color(0xFFE5E7EB);
+
+  /// Secondary / muted text
+  static const textSecondaryDark = Color(0xFF9CA3AF);
+
+  /// Disabled / hint
+  static const textDisabledDark = Color(0xFF6B7280);
+
+  // ---------------------------------------------------------------------------
+  // BORDER & DIVIDER (DARK)
+  // ---------------------------------------------------------------------------
+
+  static const borderDark = Color(0xFF243044);
+  static const dividerDark = Color(0xFF1F2937);
+
+  // ---------------------------------------------------------------------------
+  // ICON / OVERLAY (DARK)
+  // ---------------------------------------------------------------------------
+
+  static const iconDark = Color(0xFFCBD5E1);
+  static const overlayDark = Color(0x33000000);
 }

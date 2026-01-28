@@ -1,49 +1,59 @@
-import 'package:meta/meta.dart';
+import 'package:intl/intl.dart';
+import 'package:hive/hive.dart';
 
-@immutable
-class Currency {
-  const Currency({
-    required this.code, // "USD", "TRY"
-    required this.symbol, // "$", "₺"
-    required this.decimals, // 2
-    this.name, // "US Dollar"
+import 'hive_type_ids.dart';
+
+@HiveType(typeId: HiveTypeIds.currency)
+class CurrencyModel {
+  CurrencyModel({
+    required this.code,
+    required this.symbol,
+    required this.decimals,
+    this.name,
   });
 
+  @HiveField(0)
   final String code;
+
+  @HiveField(1)
   final String symbol;
+
+  @HiveField(2)
   final int decimals;
+
+  @HiveField(3)
   final String? name;
+}
 
-  Currency copyWith({
-    String? code,
-    String? symbol,
-    int? decimals,
-    String? name,
-  }) {
-    return Currency(
-      code: code ?? this.code,
-      symbol: symbol ?? this.symbol,
-      decimals: decimals ?? this.decimals,
-      name: name ?? this.name,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'code': code,
-    'symbol': symbol,
-    'decimals': decimals,
-    'name': name,
-  };
-
-  factory Currency.fromJson(Map<String, dynamic> json) {
-    return Currency(
-      code: json['code'] as String,
-      symbol: json['symbol'] as String,
-      decimals: (json['decimals'] as num).toInt(),
-      name: json['name'] as String?,
+class CurrencyModelAdapter extends TypeAdapter<CurrencyModel> {
+  @override
+  final int typeId = HiveTypeIds.currency;
+  @override
+  CurrencyModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{};
+    for (var i = 0; i < numOfFields; i++) {
+      fields[reader.readByte()] = reader.read();
+    }
+    return CurrencyModel(
+      code: fields[0] as String,
+      symbol: fields[1] as String,
+      decimals: fields[2] as int,
+      name: fields[3] as String?,
     );
   }
 
   @override
-  String toString() => 'Currency($code)';
+  void write(BinaryWriter writer, CurrencyModel obj) {
+    writer
+      ..writeByte(4)
+      ..writeByte(0)
+      ..write(obj.code)
+      ..writeByte(1)
+      ..write(obj.symbol)
+      ..writeByte(2)
+      ..write(obj.decimals)
+      ..writeByte(3)
+      ..write(obj.name);
+  }
 }

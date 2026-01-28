@@ -1,5 +1,5 @@
 import 'package:divfolio/constants/app_colors.dart';
-import 'package:divfolio/widget/bottom_sheet/create_dividend.dart';
+import 'package:divfolio/widget/bottom_sheet/create_dividend_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:divfolio/widget/appbar/home_appbar.dart';
@@ -9,7 +9,7 @@ import '../../widget/bottombar/bottombar.dart';
 import '../dashboard/dashboard_view.dart';
 import '../dividend_history/dividend_history_view.dart';
 import '../portfolio/portfolio_view.dart';
-import '../settings/settings_home.dart';
+import '../settings/settings_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});

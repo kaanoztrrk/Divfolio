@@ -1,14 +1,19 @@
 import 'package:divfolio/constants/app_colors.dart';
 import 'package:divfolio/constants/app_size.dart';
+import 'package:divfolio/core/utils/money_extension.dart';
+import 'package:divfolio/cubit/currency_cubit.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/theme/custom/text_theme.dart';
+import '../../cubit/decimal_format_cubit.dart';
 import '../../widget/tile/dividend_tile.dart';
 import 'widget/portfolio_stats_row.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,55 +22,69 @@ class DashboardView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: AppSizes.spaceMD),
         child: Column(
           children: [
-            Expanded(
-              flex: 35,
-              child: Column(
-                children: [
-                  AppText(
-                    text: "TOTAL NET DIVIDENDS",
-                    type: AppTextType.labelMedium,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(height: AppSizes.spaceMD),
-                  AppText(
-                    text: "\$12,345.67",
-                    type: AppTextType.displayMedium,
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  SizedBox(height: AppSizes.spaceSM),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "+5.67%",
-                          style: AppTextTheme.textTheme.labelMedium!.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text: " this year",
-                          style: AppTextTheme.textTheme.labelMedium!.copyWith(
+            // Rebuild tetiklemek için sadece bu iki Cubit’i dinlemen yeterli
+            BlocBuilder<CurrencyCubit, CurrencyState>(
+              builder: (context, _) {
+                return BlocBuilder<DecimalFormatCubit, DecimalFormatState>(
+                  builder: (context, __) {
+                    return Expanded(
+                      flex: 35,
+                      child: Column(
+                        children: [
+                          AppText(
+                            text: "TOTAL NET DIVIDENDS",
+                            type: AppTextType.labelMedium,
                             color: AppColors.textSecondary,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: AppSizes.spaceXXL),
-                  PortfolioStatsRow(
-                    color: AppColors.surface,
-                    firstTitle: 'Annual',
-                    firstValue: '\$1,200',
-                    secondTitle: 'Yield',
-                    secondValue: '5.6%',
-                    thirdTitle: 'Holdings',
-                    thirdValue: '24',
-                  ),
-                ],
-              ),
+                          const SizedBox(height: AppSizes.spaceMD),
+
+                          // ✅ Hardcode yok
+                          AppText(
+                            text: 12345.67.money(context),
+                            type: AppTextType.displayMedium,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+
+                          const SizedBox(height: AppSizes.spaceSM),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "+5.67%",
+                                  style: AppTextTheme.textTheme.labelMedium!
+                                      .copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                TextSpan(
+                                  text: " this year",
+                                  style: AppTextTheme.textTheme.labelMedium!
+                                      .copyWith(color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: AppSizes.spaceXXL),
+
+                          PortfolioStatsRow(
+                            color: AppColors.surface,
+                            firstTitle: 'Annual',
+                            firstValue: 1200.money(context),
+                            secondTitle: 'Yield',
+                            secondValue: '5.6%',
+                            thirdTitle: 'Holdings',
+                            thirdValue: '24',
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
             ),
+
             Expanded(
               flex: 65,
               child: Padding(
@@ -95,7 +114,7 @@ class DashboardView extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: 2,
                       itemBuilder: (context, index) {
-                        return DividendTile();
+                        return const DividendTile();
                       },
                     ),
                   ],
