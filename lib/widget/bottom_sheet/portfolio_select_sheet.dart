@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../bloc/portfolio_bloc/portfolio_event.dart';
+import '../../bloc/portfolio_bloc/portfolio_state.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
-import '../../core/enum/decimal_format.dart';
-import '../../core/utils/device_utility.dart';
-import '../../cubit/decimal_format_cubit.dart';
+import '../../core/init/locator.dart';
 import '../../widget/text/app_text.dart';
+import 'create_portfolio_sheet.dart';
 
-class DecimalFormatBottomSheet extends StatelessWidget {
-  const DecimalFormatBottomSheet({super.key});
+class PortfolioBottomSheet extends StatelessWidget {
+  const PortfolioBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = DeviceUtils.isDarkMode(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.spaceMD),
@@ -21,11 +22,12 @@ class DecimalFormatBottomSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// Header
             Row(
               children: [
                 const Expanded(
                   child: AppText(
-                    text: "Decimal Format",
+                    text: "Select Portfolio",
                     type: AppTextType.titleMedium,
                     fontWeight: FontWeight.w700,
                   ),
@@ -38,26 +40,26 @@ class DecimalFormatBottomSheet extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.spaceMD),
 
-            BlocBuilder<DecimalFormatCubit, DecimalFormatState>(
+            /// List
+            BlocBuilder<PortfolioBloc, PortfolioState>(
               builder: (context, state) {
-                final items = DecimalFormat.values;
-
                 return ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => Divider(
-                    color: isDark ? AppColors.dividerDark : AppColors.divider,
-                  ),
+                  itemCount: state.portfolios.length,
+                  separatorBuilder: (_, __) =>
+                      Divider(color: AppColors.divider),
                   itemBuilder: (context, index) {
-                    final item = items[index];
-                    final isSelected = item == state.selected;
+                    final item = state.portfolios[index];
+                    final isSelected = item.id == state.selectedPortfolioId;
 
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      onTap: () async {
-                        await context.read<DecimalFormatCubit>().select(item);
-                        if (context.mounted) Navigator.pop(context);
+                      onTap: () {
+                        context.read<PortfolioBloc>().add(
+                          SelectPortfolio(item.id),
+                        );
+                        Navigator.pop(context);
                       },
                       leading: Container(
                         height: 40,
@@ -69,22 +71,17 @@ class DecimalFormatBottomSheet extends StatelessWidget {
                           ),
                         ),
                         alignment: Alignment.center,
-                        child: Icon(
-                          Icons.exposure_rounded,
+                        child: AppText(
+                          text: item.name.characters.first.toUpperCase(),
+                          type: AppTextType.titleMedium,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.primary,
                         ),
                       ),
                       title: AppText(
-                        text: item.label,
+                        text: item.name,
                         type: AppTextType.titleMedium,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      subtitle: AppText(
-                        text: item.key, // "us" / "eu" / "plain"
-                        type: AppTextType.labelMedium,
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
                       ),
                       trailing: isSelected
                           ? Icon(
@@ -93,9 +90,7 @@ class DecimalFormatBottomSheet extends StatelessWidget {
                             )
                           : Icon(
                               Icons.circle_outlined,
-                              color: isDark
-                                  ? AppColors.borderDark
-                                  : AppColors.border,
+                              color: AppColors.border,
                             ),
                     );
                   },
@@ -104,6 +99,29 @@ class DecimalFormatBottomSheet extends StatelessWidget {
             ),
 
             const SizedBox(height: AppSizes.spaceMD),
+
+            /// Create button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const AppText(
+                  text: "Create new portfolio",
+                  type: AppTextType.labelLarge,
+                  fontWeight: FontWeight.w600,
+                ),
+                onPressed: () async {
+                  await showModalBottomSheet<String>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => BlocProvider.value(
+                      value: getIt<PortfolioBloc>(),
+                      child: CreatePortfolioSheet(),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

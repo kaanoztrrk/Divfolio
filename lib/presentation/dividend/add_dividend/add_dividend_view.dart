@@ -2,11 +2,11 @@ import 'package:divfolio/constants/app_colors.dart';
 import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants/app_size.dart';
-import '../../core/theme/custom/text_theme.dart';
-import '../../widget/field/pay_date_field.dart';
-import '../../widget/field/select_field.dart';
-import '../../widget/text/app_text.dart';
+import '../../../constants/app_size.dart';
+import '../../../core/theme/custom/text_theme.dart';
+import '../../../widget/field/pay_date_field.dart';
+import '../../../widget/field/select_field.dart';
+import '../../../widget/text/app_text.dart';
 import 'widget/advanced_options_sections.dart';
 
 class AddDividendView extends StatelessWidget {

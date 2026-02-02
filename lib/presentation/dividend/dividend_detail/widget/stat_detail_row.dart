@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/app_colors.dart';
-import '../../../constants/app_size.dart';
-import '../../../widget/text/app_text.dart';
+import '../../../../constants/app_colors.dart';
+import '../../../../constants/app_size.dart';
+import '../../../../widget/text/app_text.dart';
 
 class StatDetailRow extends StatelessWidget {
   final String title;

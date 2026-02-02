@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
 import '../../core/enum/theme_enum.dart';
+import '../../core/utils/device_utility.dart';
 import '../../cubit/theme_cubit.dart';
 import '../text/app_text.dart';
 
@@ -12,6 +13,8 @@ class ThemeBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.spaceMD),
@@ -21,11 +24,14 @@ class ThemeBottomSheet extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: AppText(
                     text: "Appearance",
                     type: AppTextType.titleMedium,
                     fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
                   ),
                 ),
                 IconButton(
@@ -43,8 +49,9 @@ class ThemeBottomSheet extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: AppColors.divider),
+                  separatorBuilder: (_, __) => Divider(
+                    color: isDark ? AppColors.dividerDark : AppColors.divider,
+                  ),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     final isSelected = item == state.selected;
@@ -83,7 +90,7 @@ class ThemeBottomSheet extends StatelessWidget {
                       title: AppText(
                         text: item.label,
                         type: AppTextType.titleMedium,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                       trailing: isSelected
                           ? Icon(
@@ -92,7 +99,9 @@ class ThemeBottomSheet extends StatelessWidget {
                             )
                           : Icon(
                               Icons.circle_outlined,
-                              color: AppColors.border,
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.border,
                             ),
                     );
                   },

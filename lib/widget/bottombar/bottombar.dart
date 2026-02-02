@@ -1,5 +1,7 @@
 import 'package:divfolio/constants/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import '../text/app_text.dart';
 
 class HomeBottomBar extends StatelessWidget {
   const HomeBottomBar({
@@ -27,13 +29,13 @@ class HomeBottomBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _NavItem(
-                    icon: Icons.dashboard_rounded,
+                    icon: Iconsax.home_2,
                     label: 'Dashboard',
                     selected: currentIndex == 0,
                     onTap: () => onTap(0),
                   ),
                   _NavItem(
-                    icon: Icons.workspaces_rounded,
+                    icon: Iconsax.wallet_3,
                     label: 'Portfolios',
                     selected: currentIndex == 1,
                     onTap: () => onTap(1),
@@ -50,13 +52,13 @@ class HomeBottomBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _NavItem(
-                    icon: Icons.history_rounded,
+                    icon: Iconsax.receipt_item,
                     label: 'History',
                     selected: currentIndex == 2,
                     onTap: () => onTap(2),
                   ),
                   _NavItem(
-                    icon: Icons.settings_rounded,
+                    icon: Iconsax.setting_4,
                     label: 'Settings',
                     selected: currentIndex == 3,
                     onTap: () => onTap(3),
@@ -88,33 +90,30 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = selected ? AppColors.primary : Colors.grey;
 
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          width: 76, // wrap olmasın
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(icon, color: color, size: 22),
                 const SizedBox(height: 2),
-                Text(
-                  label,
+                AppText(
+                  text: label,
+                  type: AppTextType.labelSmall,
+                  color: color,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.visible, // ❗️ellipsis YOK
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 10,
-                    height: 1.0,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  ),
+                  height: 1.1,
+                  letterSpacing: -0.2,
                 ),
               ],
             ),

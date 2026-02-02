@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_size.dart';
+import '../../../core/utils/device_utility.dart';
 import '../../../widget/text/app_text.dart';
 
 class StatInfoCard extends StatelessWidget {
@@ -18,12 +19,16 @@ class StatInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSizes.spaceXL),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.border,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -31,7 +36,9 @@ class StatInfoCard extends StatelessWidget {
           AppText(
             text: title,
             type: AppTextType.labelMedium,
-            color: AppColors.textSecondary,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondary,
           ),
           const SizedBox(height: 4),
           AppText(

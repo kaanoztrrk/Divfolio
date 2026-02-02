@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/app_size.dart';
-import '../../../widget/field/mini_input_field.dart';
-import '../../../widget/field/notes_field.dart';
-import '../../../widget/field/select_field.dart';
+import '../../../../constants/app_size.dart';
+import '../../../../widget/field/mini_input_field.dart';
+import '../../../../widget/field/notes_field.dart';
+import '../../../../widget/field/select_field.dart';
 
 class AdvancedOptionsSection extends StatelessWidget {
   final TextEditingController sharesController;

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
+import '../../core/utils/device_utility.dart';
 import '../../cubit/currency_cubit.dart';
 import '../../cubit/date_format_cubit.dart';
 import '../../cubit/theme_cubit.dart';
@@ -20,6 +21,8 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -28,13 +31,15 @@ class SettingsView extends StatelessWidget {
             vertical: AppSizes.spaceLG,
           ),
           children: [
-            const _SectionTitle('Interface'),
+            _SectionTitle('Interface', isDark),
             const SizedBox(height: AppSizes.spaceMD),
             _SettingsCard(
+              isDark: isDark,
               children: [
                 BlocBuilder<ThemeCubit, ThemeState>(
                   builder: (context, state) {
                     return _SettingsTile(
+                      isDark: isDark,
                       icon: Icons.dark_mode_rounded,
                       title: 'Appearance',
                       value: state.selected.name,
@@ -44,7 +49,9 @@ class SettingsView extends StatelessWidget {
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(AppSizes.radiusLG),
@@ -62,13 +69,16 @@ class SettingsView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSizes.spaceXL),
-            const _SectionTitle('Preferences'),
+            _SectionTitle('Preferences', isDark),
             const SizedBox(height: AppSizes.spaceMD),
             _SettingsCard(
+              isDark: isDark,
               children: [
                 BlocBuilder<CurrencyCubit, CurrencyState>(
                   builder: (context, state) {
                     return _SettingsTile(
+                      isDark: isDark,
+
                       icon: Icons.attach_money_rounded,
                       title: 'Default Currency',
                       value:
@@ -79,7 +89,9 @@ class SettingsView extends StatelessWidget {
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(AppSizes.radiusLG),
@@ -87,7 +99,7 @@ class SettingsView extends StatelessWidget {
                           ),
                           builder: (_) => BlocProvider.value(
                             value: cubit,
-                            child: const DecimalFormatBottomSheet(),
+                            child: const CurrencyBottomSheet(),
                           ),
                         );
                       },
@@ -98,6 +110,8 @@ class SettingsView extends StatelessWidget {
                 BlocBuilder<DecimalFormatCubit, DecimalFormatState>(
                   builder: (context, state) {
                     return _SettingsTile(
+                      isDark: isDark,
+
                       icon: Icons.exposure_rounded,
                       title: 'Decimal Format',
                       value: state.selected.label,
@@ -107,7 +121,9 @@ class SettingsView extends StatelessWidget {
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(AppSizes.radiusLG),
@@ -126,6 +142,8 @@ class SettingsView extends StatelessWidget {
                 BlocBuilder<DateFormatCubit, DateFormatState>(
                   builder: (context, state) {
                     return _SettingsTile(
+                      isDark: isDark,
+
                       icon: Icons.calendar_month_rounded,
                       title: 'Date Format',
                       value: state.selected.previewNow(),
@@ -135,7 +153,9 @@ class SettingsView extends StatelessWidget {
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(AppSizes.radiusLG),
@@ -153,11 +173,14 @@ class SettingsView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSizes.spaceXL),
-            const _SectionTitle('Data Management'),
+            _SectionTitle('Data Management', isDark),
             const SizedBox(height: AppSizes.spaceMD),
-            const _SettingsCard(
+            _SettingsCard(
+              isDark: isDark,
               children: [
                 _SettingsTile(
+                  isDark: isDark,
+
                   icon: Icons.document_scanner,
                   title: 'Export Data to CSV',
                   value: 'System',
@@ -165,16 +188,21 @@ class SettingsView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSizes.spaceXL),
-            const _SectionTitle('About'),
+            _SectionTitle('About', isDark),
             const SizedBox(height: AppSizes.spaceMD),
-            const _SettingsCard(
+            _SettingsCard(
+              isDark: isDark,
               children: [
                 _SettingsTile(
+                  isDark: isDark,
+
                   icon: Icons.shield_outlined,
                   title: 'Privacy Policy',
                   value: '',
                 ),
                 _SettingsTile(
+                  isDark: isDark,
+
                   icon: Icons.shield_outlined,
                   title: 'Terms of Service',
                   value: '',
@@ -189,33 +217,39 @@ class SettingsView extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
+  const _SectionTitle(this.text, this.isDark);
 
   final String text;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return AppText(
       text: text,
-      type: AppTextType.titleMedium,
+      type: AppTextType.titleSmall,
       fontWeight: FontWeight.w600,
-      color: AppColors.textSecondary.withValues(alpha: 0.75),
+      color: isDark
+          ? AppColors.textSecondaryDark.withValues(alpha: 0.75)
+          : AppColors.textSecondary.withValues(alpha: 0.75),
     );
   }
 }
 
 class _SettingsCard extends StatelessWidget {
-  const _SettingsCard({required this.children});
+  const _SettingsCard({required this.children, required this.isDark});
 
   final List<Widget> children;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.border,
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
@@ -231,12 +265,14 @@ class _SettingsTile extends StatelessWidget {
     required this.title,
     required this.value,
     this.onTap,
+    required this.isDark,
   });
 
   final IconData icon;
   final String title;
   final String value;
   final VoidCallback? onTap;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -265,20 +301,26 @@ class _SettingsTile extends StatelessWidget {
             Expanded(
               child: AppText(
                 text: title,
-                type: AppTextType.titleMedium,
-                color: AppColors.textPrimary,
+                type: AppTextType.titleSmall,
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
             AppText(
               text: value,
-              type: AppTextType.bodyMedium,
-              color: AppColors.textSecondary,
+              type: AppTextType.bodySmall,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
             ),
             const SizedBox(width: AppSizes.spaceXS),
             Icon(
               Icons.keyboard_arrow_right_rounded,
-              color: AppColors.textSecondary,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
+import '../../core/utils/device_utility.dart';
 import '../text/app_text.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -24,14 +25,24 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
+    final backgroundColor = isDark
+        ? AppColors.primary.withValues(alpha: 0.9)
+        : AppColors.primary;
+
+    final disabledColor = isDark
+        ? AppColors.primary.withValues(alpha: 0.3)
+        : AppColors.primary.withValues(alpha: 0.4);
+
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
         onPressed: isDisabled ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
+          backgroundColor: backgroundColor,
+          disabledBackgroundColor: disabledColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusMD),
@@ -48,7 +59,7 @@ class PrimaryButton extends StatelessWidget {
               text: label,
               type: AppTextType.titleMedium,
               color: Colors.white,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
             if (trailingIcon != null) ...[
               const SizedBox(width: 8),

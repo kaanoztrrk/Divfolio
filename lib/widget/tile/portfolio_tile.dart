@@ -3,17 +3,27 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
+import '../../core/utils/device_utility.dart';
+import '../../data/model/portfolio_model.dart';
 import '../chip/app_chip.dart';
 import '../text/app_text.dart';
 
 class PortfolioTile extends StatelessWidget {
-  const PortfolioTile({super.key});
+  const PortfolioTile({super.key, required this.portfolio});
+
+  final PortfolioModel portfolio;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.portfolioDetails);
+        Navigator.pushNamed(
+          context,
+          AppRoutes.portfolioDetails,
+          arguments: portfolio.id,
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(
@@ -22,9 +32,12 @@ class PortfolioTile extends StatelessWidget {
         ),
         margin: const EdgeInsets.symmetric(vertical: AppSizes.spaceSM),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.surfaceDark : AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.border,
+            width: 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,29 +45,42 @@ class PortfolioTile extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: AppText(
-                text: "Tech Stocks",
+                text: portfolio.name,
                 type: AppTextType.titleLarge,
-                color: AppColors.textPrimary,
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
-              subtitle: Row(
-                children: [
-                  AppChip(label: "USD"),
-                  AppText(
-                    text: " ● 12 Assets",
-                    type: AppTextType.labelMedium,
-                    color: AppColors.textSecondary,
-                  ),
-                ],
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: AppSizes.spaceXS),
+                child: Row(
+                  children: [
+                    AppChip(label: portfolio.baseCurrencyCode),
+                    SizedBox(width: AppSizes.spaceXS),
+                    AppText(
+                      text: "● 0 Assets",
+                      type: AppTextType.labelMedium,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
+                  ],
+                ),
               ),
-              trailing: Icon(Icons.chevron_right, color: AppColors.icon),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: isDark ? AppColors.iconDark : AppColors.icon,
+              ),
             ),
-            SizedBox(height: AppSizes.spaceMD),
-            AppText(text: "PORTFOLIO DIVIDENDS", type: AppTextType.labelLarge),
-            SizedBox(height: AppSizes.spaceXS),
-
-            AppText(
-              text: "\$12.450",
+            const SizedBox(height: AppSizes.spaceMD),
+            const AppText(
+              text: "PORTFOLIO DIVIDENDS",
+              type: AppTextType.labelLarge,
+            ),
+            const SizedBox(height: AppSizes.spaceXS),
+            const AppText(
+              text: "—",
               type: AppTextType.headlineLarge,
               color: AppColors.primary,
             ),

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../data/model/dividend_model.dart';
+import '../../data/model/dividend_model.dart';
 
 sealed class DividendEvent extends Equatable {
   const DividendEvent();

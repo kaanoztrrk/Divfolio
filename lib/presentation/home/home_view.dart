@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:divfolio/widget/appbar/home_appbar.dart';
 
+import '../../bloc/dividend_bloc/dividend_bloc.dart';
+import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../bloc/portfolio_bloc/portfolio_event.dart';
+import '../../core/init/locator.dart';
 import '../../cubit/home_nav_cubit.dart';
 import '../../widget/bottombar/bottombar.dart';
 import '../dashboard/dashboard_view.dart';
 import '../dividend_history/dividend_history_view.dart';
-import '../portfolio/portfolio_view.dart';
+import '../portfolio/portfolio_view/portfolio_view.dart';
 import '../settings/settings_view.dart';
 
 class HomeView extends StatelessWidget {
@@ -18,15 +22,21 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final PageStorageBucket _bucket = PageStorageBucket();
 
-    const List<Widget> _pages = <Widget>[
+    List<Widget> _pages = <Widget>[
       DashboardView(key: PageStorageKey('dashboard')),
-      PortfoliosView(key: PageStorageKey('portfolios')),
+      PortfolioView(key: PageStorageKey('portfolios')),
       DividendHistoryView(key: PageStorageKey('history')),
       SettingsView(key: PageStorageKey('settings')),
     ];
 
-    return BlocProvider(
-      create: (_) => HomeNavCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<PortfolioBloc>()..add(LoadPortfolios()),
+        ),
+        BlocProvider(create: (_) => HomeNavCubit()),
+      ],
+
       child: BlocBuilder<HomeNavCubit, int>(
         builder: (context, index) {
           final navCubit = context.read<HomeNavCubit>();
@@ -34,6 +44,7 @@ class HomeView extends StatelessWidget {
           final showFab = index != 3; // Settings'te FAB kapalı
 
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             appBar: HomeAppBar(),
 
             body: PageStorage(

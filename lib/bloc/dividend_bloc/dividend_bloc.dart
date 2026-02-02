@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../data/repository/dividend_repository.dart';
-import '../service/log_service.dart';
+import '../../data/repository/dividend_repository.dart';
+import '../../service/log_service.dart';
 import 'dividend_event.dart';
 import 'dividend_state.dart';
 

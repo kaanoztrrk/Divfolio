@@ -1,3 +1,4 @@
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
 
@@ -13,15 +14,16 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     return AppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       elevation: 0,
       centerTitle: false,
 
       title: AppText(
         text: "Divfolio",
         type: AppTextType.titleLarge,
-        color: AppColors.textPrimary,
+        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         googleFont: "Audiowide",
       ),
     );

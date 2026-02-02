@@ -4,10 +4,12 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/custom/text_theme.dart';
+import '../../data/model/dividend_model.dart';
 import '../text/app_text.dart';
 
 class DividendTile extends StatelessWidget {
-  const DividendTile({super.key});
+  const DividendTile({super.key, required this.dividend});
+  final DividendModel dividend;
 
   @override
   Widget build(BuildContext context) {

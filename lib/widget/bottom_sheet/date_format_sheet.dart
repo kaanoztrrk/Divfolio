@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_size.dart';
 import '../../core/enum/date_formatter.dart';
+import '../../core/utils/device_utility.dart';
 import '../../cubit/date_format_cubit.dart';
 import '../text/app_text.dart';
 
@@ -12,6 +13,8 @@ class DateFormatBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.spaceMD),
@@ -44,8 +47,9 @@ class DateFormatBottomSheet extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: AppColors.divider),
+                  separatorBuilder: (_, __) => Divider(
+                    color: isDark ? AppColors.dividerDark : AppColors.divider,
+                  ),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     final isSelected = item == state.selected;
@@ -75,13 +79,15 @@ class DateFormatBottomSheet extends StatelessWidget {
                         text: item
                             .previewNow(), // örn: 27.01.2026 / 01/27/2026 / 27 Jan 2026
                         type: AppTextType.titleMedium,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                       subtitle: AppText(
                         text: item
                             .pattern, // istersen küçük bilgi olarak kalsın (dd/MM/yyyy)
-                        type: AppTextType.labelMedium,
-                        color: AppColors.textSecondary,
+                        type: AppTextType.labelSmall,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondary,
                       ),
                       trailing: isSelected
                           ? Icon(
@@ -90,7 +96,9 @@ class DateFormatBottomSheet extends StatelessWidget {
                             )
                           : Icon(
                               Icons.circle_outlined,
-                              color: AppColors.border,
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.border,
                             ),
                     );
                   },

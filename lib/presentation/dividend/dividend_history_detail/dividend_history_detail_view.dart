@@ -1,8 +1,8 @@
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../../constants/app_colors.dart';
+import '../../../constants/app_size.dart';
 import 'widget/dividend_history_list.dart';
 
 class DividendHistoryDetailView extends StatelessWidget {
