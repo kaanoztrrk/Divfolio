@@ -15,8 +15,17 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = DeviceUtils.isDarkMode(context);
+
+    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
+
     return AppBar(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
+      backgroundColor: bgColor,
+
+      // 🔴 Kritik satırlar
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      forceMaterialTransparency: false,
+
       elevation: 0,
       centerTitle: false,
 

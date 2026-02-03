@@ -1,3 +1,5 @@
+import 'package:divfolio/core/utils/device_utility.dart';
+import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,6 +17,7 @@ class PortfolioBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.spaceMD),
@@ -47,8 +50,9 @@ class PortfolioBottomSheet extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: state.portfolios.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: AppColors.divider),
+                  separatorBuilder: (_, __) => Divider(
+                    color: isDark ? AppColors.dividerDark : AppColors.divider,
+                  ),
                   itemBuilder: (context, index) {
                     final item = state.portfolios[index];
                     final isSelected = item.id == state.selectedPortfolioId;
@@ -90,7 +94,9 @@ class PortfolioBottomSheet extends StatelessWidget {
                             )
                           : Icon(
                               Icons.circle_outlined,
-                              color: AppColors.border,
+                              color: isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.border,
                             ),
                     );
                   },
@@ -101,26 +107,18 @@ class PortfolioBottomSheet extends StatelessWidget {
             const SizedBox(height: AppSizes.spaceMD),
 
             /// Create button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.add),
-                label: const AppText(
-                  text: "Create new portfolio",
-                  type: AppTextType.labelLarge,
-                  fontWeight: FontWeight.w600,
-                ),
-                onPressed: () async {
-                  await showModalBottomSheet<String>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) => BlocProvider.value(
-                      value: getIt<PortfolioBloc>(),
-                      child: CreatePortfolioSheet(),
-                    ),
-                  );
-                },
-              ),
+            PrimaryButton(
+              label: "Create Portfolio",
+              onPressed: () async {
+                await showModalBottomSheet<String>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => BlocProvider.value(
+                    value: getIt<PortfolioBloc>(),
+                    child: CreatePortfolioSheet(),
+                  ),
+                );
+              },
             ),
           ],
         ),

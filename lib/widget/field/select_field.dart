@@ -1,3 +1,4 @@
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_colors.dart';
@@ -10,6 +11,7 @@ class SelectField extends StatelessWidget {
   final VoidCallback onTap;
 
   const SelectField({
+    super.key,
     required this.title,
     required this.value,
     required this.onTap,
@@ -17,6 +19,7 @@ class SelectField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -24,9 +27,11 @@ class SelectField extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(AppSizes.spaceMD),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.surfaceDark : AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.border,
+          ),
         ),
         child: Row(
           children: [
@@ -37,7 +42,9 @@ class SelectField extends StatelessWidget {
                   AppText(
                     text: title,
                     type: AppTextType.labelSmall,
-                    color: AppColors.textSecondary,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondary,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
                   ),
@@ -45,7 +52,9 @@ class SelectField extends StatelessWidget {
                   AppText(
                     text: value,
                     type: AppTextType.titleMedium,
-                    color: AppColors.textPrimary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ],
@@ -54,8 +63,18 @@ class SelectField extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.keyboard_arrow_up, color: AppColors.textSecondary),
-                Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+                Icon(
+                  Icons.keyboard_arrow_up,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondary,
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondary,
+                ),
               ],
             ),
           ],

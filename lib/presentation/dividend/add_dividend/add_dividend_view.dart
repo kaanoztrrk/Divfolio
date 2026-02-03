@@ -1,4 +1,5 @@
 import 'package:divfolio/constants/app_colors.dart';
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,7 @@ class AddDividendView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -54,9 +56,11 @@ class AddDividendView extends StatelessWidget {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? AppColors.surfaceDark : AppColors.surface,
                   borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: isDark ? AppColors.borderDark : AppColors.border,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withValues(alpha: 0.2),
@@ -89,12 +93,18 @@ class AddDividendView extends StatelessWidget {
                         horizontal: AppSizes.spaceMD,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.05),
+                        color: isDark
+                            ? AppColors.primary
+                            : AppColors.primary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(AppSizes.radiusMD),
                           bottomRight: Radius.circular(AppSizes.radiusMD),
                         ),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.borderDark
+                              : AppColors.border,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,8 +112,12 @@ class AddDividendView extends StatelessWidget {
                           AppText(
                             text: "NET AMOUNT RECEIVED",
                             type: AppTextType.bodyMedium,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary.withValues(alpha: 0.8),
+                            fontWeight: isDark
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isDark
+                                ? AppColors.textPrimary
+                                : AppColors.textPrimary.withValues(alpha: 0.8),
                           ),
                           const SizedBox(height: AppSizes.spaceSM),
                           Row(
@@ -113,7 +127,9 @@ class AddDividendView extends StatelessWidget {
                                 text: "\$",
                                 type: AppTextType.headlineLarge,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
+                                color: isDark
+                                    ? AppColors.icon
+                                    : AppColors.primary,
                               ),
                               const SizedBox(width: AppSizes.spaceXS),
                               Expanded(
@@ -148,7 +164,9 @@ class AddDividendView extends StatelessWidget {
                               Icon(
                                 Icons.info_outline,
                                 size: 16,
-                                color: AppColors.textSecondary,
+                                color: isDark
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
                               ),
                               const SizedBox(width: AppSizes.spaceXS),
                               Expanded(
@@ -156,7 +174,9 @@ class AddDividendView extends StatelessWidget {
                                   text:
                                       "This is the actual amount received in your account after any tax withholdings.",
                                   type: AppTextType.labelSmall,
-                                  color: AppColors.textSecondary,
+                                  color: isDark
+                                      ? AppColors.textPrimary
+                                      : AppColors.textSecondary,
                                 ),
                               ),
                             ],

@@ -110,7 +110,7 @@ class _NavItem extends StatelessWidget {
                   type: AppTextType.labelSmall,
                   color: color,
                   maxLines: 1,
-                  overflow: TextOverflow.visible, // ❗️ellipsis YOK
+                  overflow: TextOverflow.visible,
                   textAlign: TextAlign.center,
                   height: 1.1,
                   letterSpacing: -0.2,

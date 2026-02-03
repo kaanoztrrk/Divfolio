@@ -30,6 +30,26 @@ class PortfolioModel {
 
   @HiveField(5)
   final String? notes;
+
+  /// 🔹 Immutable update helper
+  PortfolioModel copyWith({
+    String? id,
+    String? name,
+    String? baseCurrencyCode,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? notes,
+    bool clearNotes = false,
+  }) {
+    return PortfolioModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      baseCurrencyCode: baseCurrencyCode ?? this.baseCurrencyCode,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      notes: clearNotes ? null : (notes ?? this.notes),
+    );
+  }
 }
 
 class PortfolioModelAdapter extends TypeAdapter<PortfolioModel> {
