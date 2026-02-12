@@ -1,3 +1,4 @@
+import 'package:divfolio/bloc/holding/holding_bloc.dart';
 import 'package:divfolio/bloc/portfolio_bloc/portfolio_event.dart';
 import 'package:divfolio/presentation/dividend/add_dividend/add_dividend_view.dart';
 import 'package:divfolio/presentation/add_holding/add_holding_view.dart';
@@ -72,6 +73,7 @@ class AppRouter {
               BlocProvider.value(
                 value: getIt<PortfolioBloc>()..add(LoadPortfolios()),
               ),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
             ],
             child: AddHoldingView(),
           ),

@@ -1,21 +1,21 @@
+// portfolio_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../data/repository/portfolio_repository.dart';
 import '../../service/log_service.dart';
 import 'portfolio_event.dart';
 import 'portfolio_state.dart';
 
 class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
+  final PortfolioRepository _repository;
+  final LogService _log = LogService.instance;
+
   PortfolioBloc(this._repository) : super(const PortfolioState()) {
     on<LoadPortfolios>(_onLoadPortfolios);
     on<SelectPortfolio>(_onSelectPortfolio);
     on<UpsertPortfolio>(_onUpsertPortfolio);
     on<DeletePortfolio>(_onDeletePortfolio);
-    on<ResetPortfolioState>((event, emit) => emit(const PortfolioState()));
+    on<ResetPortfolioState>((_, emit) => emit(const PortfolioState()));
   }
-
-  final PortfolioRepository _repository;
-  final LogService _log = LogService.instance;
 
   Future<void> _onLoadPortfolios(
     LoadPortfolios event,
@@ -23,15 +23,10 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   ) async {
     emit(state.copyWith(loading: true, clearError: true));
     try {
-      // ✅ boşsa default portfolio oluştur
       await _repository.ensureDefaultPortfolio();
-
-      // ✅ sonra listeyi çek
       final list = await _repository.getPortfolios();
 
-      // seçim mantığı
       String? selectedId;
-
       if (event.selectPortfolioId != null &&
           list.any((p) => p.id == event.selectPortfolioId)) {
         selectedId = event.selectPortfolioId;
@@ -71,7 +66,6 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     emit(state.copyWith(loading: true, clearError: true));
     try {
       await _repository.upsertPortfolio(event.portfolio);
-
       final list = await _repository.getPortfolios();
 
       emit(
@@ -99,18 +93,12 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     emit(state.copyWith(loading: true, clearError: true));
     try {
       await _repository.deletePortfolio(event.portfolioId);
-
-      // silme sonrası eğer hepsi silindiyse tekrar default oluştur
       await _repository.ensureDefaultPortfolio();
-
       final list = await _repository.getPortfolios();
 
-      final wasSelected = state.selectedPortfolioId == event.portfolioId;
-
-      String? newSelectedId = state.selectedPortfolioId;
-      if (wasSelected) {
-        newSelectedId = list.isNotEmpty ? list.first.id : null;
-      }
+      String? newSelectedId = state.selectedPortfolioId == event.portfolioId
+          ? (list.isNotEmpty ? list.first.id : null)
+          : state.selectedPortfolioId;
 
       emit(
         state.copyWith(

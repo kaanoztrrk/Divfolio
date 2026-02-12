@@ -36,12 +36,10 @@ class PortfolioDetailView extends StatelessWidget {
 
         if (portfolio == null) {
           return Scaffold(
-            backgroundColor: AppColors.background,
             appBar: AppBar(
-              backgroundColor: AppColors.background,
               centerTitle: true,
               title: const AppText(
-                text: 'Portfolio',
+                text: "Portfolio Detail",
                 type: AppTextType.titleMedium,
               ),
             ),
@@ -60,9 +58,7 @@ class PortfolioDetailView extends StatelessWidget {
             final currency = currencyState.selected;
 
             return Scaffold(
-              backgroundColor: AppColors.background,
               appBar: AppBar(
-                backgroundColor: AppColors.background,
                 elevation: 0,
                 centerTitle: true,
                 title: AppText(

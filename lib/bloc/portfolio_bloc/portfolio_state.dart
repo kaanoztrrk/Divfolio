@@ -1,13 +1,11 @@
+// portfolio_state.dart
 import 'package:equatable/equatable.dart';
 import '../../data/model/portfolio_model.dart';
 
 class PortfolioState extends Equatable {
   final bool loading;
   final String? error;
-
   final List<PortfolioModel> portfolios;
-
-  /// UI context
   final String? selectedPortfolioId;
 
   const PortfolioState({
@@ -19,12 +17,9 @@ class PortfolioState extends Equatable {
 
   PortfolioState copyWith({
     bool? loading,
-
     String? error,
     bool clearError = false,
-
     List<PortfolioModel>? portfolios,
-
     String? selectedPortfolioId,
     bool clearSelection = false,
   }) {
@@ -40,11 +35,10 @@ class PortfolioState extends Equatable {
 
   PortfolioModel? get selectedPortfolio {
     if (selectedPortfolioId == null) return null;
-    try {
-      return portfolios.firstWhere((p) => p.id == selectedPortfolioId);
-    } catch (_) {
-      return null;
-    }
+    return portfolios.firstWhere(
+      (p) => p.id == selectedPortfolioId,
+      orElse: () => portfolios.first,
+    );
   }
 
   @override

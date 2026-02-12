@@ -10,7 +10,7 @@ abstract class DividendRepository {
 
   Future<List<DividendModel>> getDividendsByCompany({
     required String portfolioId,
-    required String companyId,
+    required String holdingId,
   });
 
   Future<void> upsertDividend(DividendModel dividend);
@@ -51,11 +51,11 @@ class HiveDividendRepository implements DividendRepository {
   @override
   Future<List<DividendModel>> getDividendsByCompany({
     required String portfolioId,
-    required String companyId,
+    required String holdingId,
   }) async {
     final list = _hive.where<DividendModel>(
       _box,
-      (d) => d.portfolioId == portfolioId && d.companyId == companyId,
+      (d) => d.portfolioId == portfolioId && d.holdingId == holdingId,
     )..sort((a, b) => b.payDate.compareTo(a.payDate));
     return list;
   }
@@ -99,7 +99,7 @@ class HiveDividendRepository implements DividendRepository {
       if (year != null && d.payDate.year != year) continue;
 
       final companyMap = result.putIfAbsent(
-        d.companyId,
+        d.holdingId,
         () => <String, double>{},
       );
 
@@ -107,7 +107,7 @@ class HiveDividendRepository implements DividendRepository {
       companyMap[cc] = (companyMap[cc] ?? 0) + d.netAmount;
     }
 
-    final companyIds = result.keys.toList()
+    final holdingIds = result.keys.toList()
       ..sort((a, b) {
         final ta = result[a]!.values.fold<double>(0, (p, e) => p + e);
         final tb = result[b]!.values.fold<double>(0, (p, e) => p + e);
@@ -115,7 +115,7 @@ class HiveDividendRepository implements DividendRepository {
       });
 
     final sorted = LinkedHashMap<String, Map<String, double>>();
-    for (final id in companyIds) {
+    for (final id in holdingIds) {
       sorted[id] = _sortedByValueDesc(result[id]!);
     }
     return sorted;

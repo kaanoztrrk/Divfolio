@@ -11,12 +11,14 @@ class MiniInputField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final TextInputType keyboardType;
+  final Function(String)? onChanged;
 
   const MiniInputField({
     required this.title,
     required this.controller,
     required this.hintText,
     required this.keyboardType,
+    this.onChanged,
   });
 
   @override
@@ -46,6 +48,7 @@ class MiniInputField extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.spaceSM),
           TextField(
+            onChanged: onChanged,
             controller: controller,
             keyboardType: keyboardType,
             style: AppTextTheme.textTheme.headlineSmall!.copyWith(

@@ -13,11 +13,15 @@ import '../../widget/text/app_text.dart';
 import 'create_portfolio_sheet.dart';
 
 class PortfolioBottomSheet extends StatelessWidget {
-  const PortfolioBottomSheet({super.key});
+  /// Parent widget’a seçim callback’i
+  final void Function(String selectedId) onSelect;
+
+  const PortfolioBottomSheet({super.key, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
     final isDark = DeviceUtils.isDarkMode(context);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.spaceMD),
@@ -43,7 +47,7 @@ class PortfolioBottomSheet extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.spaceMD),
 
-            /// List
+            /// List of portfolios
             BlocBuilder<PortfolioBloc, PortfolioState>(
               builder: (context, state) {
                 return ListView.separated(
@@ -60,10 +64,14 @@ class PortfolioBottomSheet extends StatelessWidget {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       onTap: () {
+                        // Bloc event tetikleniyor
                         context.read<PortfolioBloc>().add(
                           SelectPortfolio(item.id),
                         );
-                        Navigator.pop(context);
+
+                        // Callback ile parent widget’a bildiriliyor
+                        onSelect(item.id);
+                        print("Selected portfolio ID: ${item.id}");
                       },
                       leading: Container(
                         height: 40,
@@ -106,7 +114,7 @@ class PortfolioBottomSheet extends StatelessWidget {
 
             const SizedBox(height: AppSizes.spaceMD),
 
-            /// Create button
+            /// Create new portfolio button
             PrimaryButton(
               label: "Create Portfolio",
               onPressed: () async {

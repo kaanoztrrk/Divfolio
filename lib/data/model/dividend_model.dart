@@ -7,7 +7,7 @@ class DividendModel {
   DividendModel({
     required this.id,
     required this.portfolioId,
-    required this.companyId,
+    required this.holdingId,
     required this.payDate,
     required this.sharesAtPayDate,
     required this.dividendPerShare,
@@ -26,7 +26,7 @@ class DividendModel {
   final String portfolioId;
 
   @HiveField(2)
-  final String companyId;
+  final String holdingId;
 
   @HiveField(3)
   final DateTime payDate;
@@ -78,7 +78,7 @@ class DividendModelAdapter extends TypeAdapter<DividendModel> {
     return DividendModel(
       id: fields[0] as String,
       portfolioId: fields[1] as String,
-      companyId: fields[2] as String,
+      holdingId: fields[2] as String,
       payDate: fields[3] as DateTime,
       sharesAtPayDate: (fields[4] as num).toDouble(),
       dividendPerShare: (fields[5] as num).toDouble(),
@@ -100,7 +100,7 @@ class DividendModelAdapter extends TypeAdapter<DividendModel> {
       ..writeByte(1)
       ..write(obj.portfolioId)
       ..writeByte(2)
-      ..write(obj.companyId)
+      ..write(obj.holdingId)
       ..writeByte(3)
       ..write(obj.payDate)
       ..writeByte(4)

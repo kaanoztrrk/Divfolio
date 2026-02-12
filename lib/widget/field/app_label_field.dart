@@ -7,17 +7,15 @@ import '../text/app_text.dart';
 
 class AppLabeledField extends StatelessWidget {
   final String title;
-
   final TextEditingController? controller;
   final String? hintText;
-
   final IconData? leadingIcon;
   final Widget? trailing;
-
   final bool readOnly;
   final VoidCallback? onTap;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  final bool toUpperCase; // yeni opsiyon
 
   const AppLabeledField({
     super.key,
@@ -30,6 +28,7 @@ class AppLabeledField extends StatelessWidget {
     this.onTap,
     this.keyboardType,
     this.onChanged,
+    this.toUpperCase = false, // default false
   });
 
   @override
@@ -51,7 +50,20 @@ class AppLabeledField extends StatelessWidget {
           readOnly: readOnly,
           onTap: onTap,
           keyboardType: keyboardType,
-          onChanged: onChanged,
+          onChanged: (v) {
+            final value = toUpperCase ? v.toUpperCase() : v;
+
+            // controller varsa text'i güncelle
+            if (controller != null) {
+              final selection = controller!.selection;
+              controller!.value = TextEditingValue(
+                text: value,
+                selection: selection,
+              );
+            }
+
+            if (onChanged != null) onChanged!(value);
+          },
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(
