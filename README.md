@@ -1,16 +1,85 @@
-# divfolio
+# 📊 Divfolio
 
-A new Flutter project.
+**Divfolio**, bireysel yatırımcılar için geliştirilmiş modern bir **portföy ve varlık takip uygulamasıdır**.  
+Flutter ile sıfırdan inşa edilmiş; temiz mimari, ölçeklenebilir yapı ve backend bağımsızlığı öncelik alınmıştır.
 
-## Getting Started
+> Amaç: Dağınık yatırım takibini sade, güvenilir ve sürdürülebilir bir yapıya oturtmak.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Temel Özellikler
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 📈 Portföy & varlık takibi  
+- 🔐 API tabanlı kullanıcı kimlik doğrulama  
+- 🧱 Modüler ve ölçeklenebilir mimari  
+- ⚙️ Backend bağımsız yapı (Firebase bağımlılığı yok)  
+- 🧠 State management: **BLoC**  
+- 🎯 Temiz kod & sürdürülebilir geliştirme yaklaşımı  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🧩 Mimari Yaklaşım
+
+Divfolio, **Clean Architecture** prensipleri baz alınarak geliştirilmiştir.
+
+Katmanlar net bir şekilde ayrılmıştır:
+
+lib/
+│
+├── bloc/
+├── core/
+├── cubit/
+├── data/
+├── presentation/
+├── service/
+├── widget/
+└── main.dart
+
+### Kullanılan Yaklaşımlar
+- **Repository Pattern**
+- **Dependency Injection**
+- **Separation of Concerns**
+- **Single Responsibility Principle**
+
+---
+
+## 🛠️ Kullanılan Teknolojiler
+
+- **Flutter**
+- **Dart**
+- **flutter_bloc**
+- **Dio**
+- **Clean Architecture**
+
+---
+
+## 🎨 UI / UX Yaklaşımı
+
+- Modern, sade ve dikkat dağıtmayan tasarım  
+- Beyaz zemin + primary renk uyumu  
+- Veri odaklı ekran kurgusu  
+- Gereksiz animasyonlardan kaçınılmış yapı
+
+---
+
+## 📌 Projenin Amacı
+
+Divfolio bir “demo uygulama” değil.  
+Gerçek hayatta kullanılabilecek, büyütülebilecek ve yeni modüllerle genişletilebilecek şekilde tasarlanmıştır.
+
+- Yeni varlık türleri eklenebilir  
+- Farklı piyasa servisleri bağlanabilir  
+- Premium / subscription modeli kurgulanabilir  
+
+## 👤 Geliştirici
+
+**Kaan Öztürk**  
+Flutter Developer
+## 📄 Lisans
+
+Bu proje kişisel geliştirme amaçlıdır.  
+Kodun izinsiz ticari kullanımı yasaktır.
+
+---
+
+> Eğer bu repo ilgini çektiyse ⭐ vermeyi unutma.
