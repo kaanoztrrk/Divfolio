@@ -22,19 +22,6 @@ Flutter ile sıfırdan inşa edilmiş; temiz mimari, ölçeklenebilir yapı ve b
 
 Divfolio, **Clean Architecture** prensipleri baz alınarak geliştirilmiştir.
 
-Katmanlar net bir şekilde ayrılmıştır:
-
-lib/
-│
-├── bloc/
-├── core/
-├── cubit/
-├── data/
-├── presentation/
-├── service/
-├── widget/
-└── main.dart
-
 ### Kullanılan Yaklaşımlar
 - **Repository Pattern**
 - **Dependency Injection**
