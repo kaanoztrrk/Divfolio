@@ -7,7 +7,6 @@ import 'core/enum/theme_enum.dart';
 import 'core/init/locator.dart';
 import 'core/routes/app_router.dart';
 import 'core/routes/app_routes.dart';
-import 'cubit/currency_cubit.dart';
 import 'cubit/date_format_cubit.dart';
 import 'cubit/decimal_format_cubit.dart';
 import 'cubit/theme_cubit.dart';
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => getIt<CurrencyCubit>()..load()),
         BlocProvider(create: (_) => getIt<ThemeCubit>()..load()),
         BlocProvider(create: (_) => getIt<DateFormatCubit>()..load()),
         BlocProvider(create: (_) => getIt<DecimalFormatCubit>()..load()),

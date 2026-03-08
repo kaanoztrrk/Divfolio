@@ -26,6 +26,7 @@ abstract class DividendRepository {
     required String portfolioId,
     int? year,
   });
+  Future<List<DividendModel>> getAllDividends();
 }
 
 /// HiveManager (dynamic box) ile çalışan implementasyon
@@ -114,7 +115,7 @@ class HiveDividendRepository implements DividendRepository {
         return tb.compareTo(ta);
       });
 
-    final sorted = LinkedHashMap<String, Map<String, double>>();
+    final sorted = <String, Map<String, double>>{};
     for (final id in holdingIds) {
       sorted[id] = _sortedByValueDesc(result[id]!);
     }
@@ -130,5 +131,11 @@ class HiveDividendRepository implements DividendRepository {
     final keys = input.keys.toList()
       ..sort((a, b) => (input[b] ?? 0).compareTo(input[a] ?? 0));
     return LinkedHashMap.fromEntries(keys.map((k) => MapEntry(k, input[k]!)));
+  }
+
+  Future<List<DividendModel>> getAllDividends() async {
+    final list = _hive.getAll<DividendModel>(_box)
+      ..sort((a, b) => b.payDate.compareTo(a.payDate));
+    return list;
   }
 }

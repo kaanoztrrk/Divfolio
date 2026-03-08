@@ -1,17 +1,24 @@
-import 'package:divfolio/core/routes/app_routes.dart';
+// portfolio_tile.dart
 import 'package:flutter/material.dart';
-
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
-import '../../core/utils/device_utility.dart';
 import '../../data/model/portfolio_model.dart';
-import '../chip/app_chip.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
+import '../../core/utils/device_utility.dart';
 import '../text/app_text.dart';
+import '../chip/app_chip.dart';
+import '../../core/routes/app_routes.dart';
 
 class PortfolioTile extends StatelessWidget {
-  const PortfolioTile({super.key, required this.portfolio});
+  const PortfolioTile({
+    super.key,
+    required this.portfolio,
+    required this.assetCount,
+    required this.totalValue,
+  });
 
   final PortfolioModel portfolio;
+  final int assetCount;
+  final double totalValue;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,7 @@ class PortfolioTile extends StatelessWidget {
         Navigator.pushNamed(
           context,
           AppRoutes.portfolioDetails,
-          arguments: portfolio.id,
+          arguments: portfolio,
         );
       },
       child: Container(
@@ -59,7 +66,7 @@ class PortfolioTile extends StatelessWidget {
                     AppChip(label: portfolio.baseCurrencyCode),
                     SizedBox(width: AppSizes.spaceXS),
                     AppText(
-                      text: "● 0 Assets",
+                      text: "● $assetCount Assets",
                       type: AppTextType.labelMedium,
                       color: isDark
                           ? AppColors.textSecondaryDark
@@ -79,8 +86,8 @@ class PortfolioTile extends StatelessWidget {
               type: AppTextType.labelLarge,
             ),
             const SizedBox(height: AppSizes.spaceXS),
-            const AppText(
-              text: "—",
+            AppText(
+              text: totalValue > 0 ? totalValue.toStringAsFixed(2) : "-",
               type: AppTextType.headlineLarge,
               color: AppColors.primary,
             ),

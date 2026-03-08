@@ -1,12 +1,12 @@
-import 'package:divfolio/constants/app_size.dart';
+import 'package:divfolio/core/constants/app_size.dart';
 import 'package:divfolio/core/utils/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_state.dart';
-import '../../constants/app_colors.dart';
-import '../../constants/app_images.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_images.dart';
 import '../../widget/text/app_text.dart';
 import '../../widget/tile/dividend_tile.dart';
 

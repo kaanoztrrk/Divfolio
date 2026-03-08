@@ -1,4 +1,3 @@
-// dividend_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repository/dividend_repository.dart';
 import '../../service/log_service.dart';
@@ -16,6 +15,36 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     on<DeleteDividend>(_onDeleteDividend);
     on<LoadDividendSummary>(_onLoadDividendSummary);
     on<ResetDividendState>((_, emit) => emit(const DividendState()));
+    on<LoadAllDividends>(_onLoadAllDividends);
+  }
+
+  Future<void> _onLoadAllDividends(
+    LoadAllDividends event,
+    Emitter<DividendState> emit,
+  ) async {
+    emit(state.copyWith(loading: true, clearError: true));
+    try {
+      final list = await _repository.getAllDividends();
+
+      // Para birimi bazlı topla, asla tek sayıya indirme
+      final totals = _groupByCurrency(list);
+
+      emit(
+        state.copyWith(
+          loading: false,
+          dividends: list,
+          totalsByCurrency: totals,
+        ),
+      );
+
+      _log.debug(
+        "✅ LoadAllDividends | count=${list.length} | currencies=${totals.keys}",
+        tag: 'DIVIDEND',
+      );
+    } catch (e, s) {
+      _log.error("❌ LoadAllDividends: $e", tag: 'DIVIDEND', stackTrace: s);
+      emit(state.copyWith(loading: false, error: e.toString()));
+    }
   }
 
   Future<void> _onLoadDividends(
@@ -25,15 +54,22 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     emit(state.copyWith(loading: true, clearError: true));
     try {
       final list = await _repository.getDividends(event.portfolioId);
+      final totals = _groupByCurrency(list);
+
       emit(
         state.copyWith(
           loading: false,
           dividends: list,
           selectedPortfolioId: event.portfolioId,
           clearCompanyFilter: true,
+          totalsByCurrency: totals,
         ),
       );
-      _log.debug("✅ Dividends loaded. count=${list.length}", tag: 'DIVIDEND');
+
+      _log.debug(
+        "✅ Dividends loaded | count=${list.length} | currencies=${totals.keys}",
+        tag: 'DIVIDEND',
+      );
     } catch (e, s) {
       _log.error("❌ LoadDividends: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
@@ -50,16 +86,20 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
         portfolioId: event.portfolioId,
         holdingId: event.companyId,
       );
+      final totals = _groupByCurrency(list);
+
       emit(
         state.copyWith(
           loading: false,
           dividends: list,
           selectedPortfolioId: event.portfolioId,
           selectedCompanyId: event.companyId,
+          totalsByCurrency: totals,
         ),
       );
+
       _log.debug(
-        "✅ Dividends by company loaded. count=${list.length}",
+        "✅ Dividends by company loaded | count=${list.length}",
         tag: 'DIVIDEND',
       );
     } catch (e, s) {
@@ -93,17 +133,27 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
             )
           : await _repository.getDividends(pid);
 
+      final totals = _groupByCurrency(list);
+
+      // Summary de güncellenir — stale kalmaz
+      final totalsByCurrencyFull = await _repository
+          .getTotalNetDividendsByCurrency(portfolioId: pid);
+      final byCompanyByCurrency = await _repository
+          .getNetDividendsByCompanyByCurrency(portfolioId: pid);
+
       emit(
         state.copyWith(
           loading: false,
           dividends: list,
           selectedPortfolioId: pid,
           selectedCompanyId: keepCompanyFilter ? currentFilterCompanyId : null,
+          totalsByCurrency: totalsByCurrencyFull,
+          byCompanyByCurrency: byCompanyByCurrency,
         ),
       );
 
       _log.debug(
-        "✅ Dividend upserted. id=${event.dividend.id}",
+        "✅ Dividend upserted | id=${event.dividend.id}",
         tag: 'DIVIDEND',
       );
     } catch (e, s) {
@@ -119,6 +169,7 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     emit(state.copyWith(loading: true, clearError: true));
     try {
       await _repository.deleteDividend(event.dividendId);
+
       final pid = state.selectedPortfolioId;
       if (pid == null) return emit(state.copyWith(loading: false));
 
@@ -130,8 +181,25 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
               holdingId: cid,
             );
 
-      emit(state.copyWith(loading: false, dividends: list));
-      _log.debug("✅ Dividend deleted. id=${event.dividendId}", tag: 'DIVIDEND');
+      final totalsByCurrency = await _repository.getTotalNetDividendsByCurrency(
+        portfolioId: pid,
+      );
+      final byCompanyByCurrency = await _repository
+          .getNetDividendsByCompanyByCurrency(portfolioId: pid);
+
+      emit(
+        state.copyWith(
+          loading: false,
+          dividends: list,
+          totalsByCurrency: totalsByCurrency,
+          byCompanyByCurrency: byCompanyByCurrency,
+        ),
+      );
+
+      _log.debug(
+        "✅ Dividend deleted | id=${event.dividendId}",
+        tag: 'DIVIDEND',
+      );
     } catch (e, s) {
       _log.error("❌ DeleteDividend: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
@@ -169,5 +237,16 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
       _log.error("❌ LoadDividendSummary: $e", tag: 'DIVIDEND', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
+  }
+
+  /// Dividend listesini para birimi bazlı toplar.
+  /// TRY ve USD asla birleştirilmez.
+  Map<String, double> _groupByCurrency(List<dynamic> list) {
+    final map = <String, double>{};
+    for (final d in list) {
+      final cc = d.currencyCode.trim().toUpperCase();
+      map[cc] = (map[cc] ?? 0) + d.netAmount;
+    }
+    return map;
   }
 }

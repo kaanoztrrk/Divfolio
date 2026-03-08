@@ -1,8 +1,8 @@
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
 
-import '../../../constants/app_colors.dart';
-import '../../../constants/app_size.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_size.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/custom/text_theme.dart';
 import '../../dashboard/widget/portfolio_stats_row.dart';

@@ -1,12 +1,13 @@
-import 'package:divfolio/constants/app_colors.dart';
+import 'package:divfolio/core/constants/app_colors.dart';
 import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:divfolio/widget/field/select_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_event.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/utils/device_utility.dart';
 import '../../data/model/portfolio_model.dart';
 import '../../widget/text/app_text.dart';
@@ -21,16 +22,20 @@ class CreatePortfolioSheet extends StatefulWidget {
 
 class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
   final TextEditingController _nameCtrl = TextEditingController();
+  final _uuid = const Uuid();
 
-  // LOCAL currency list
   final List<String> _currencies = ['USD', 'EUR', 'TRY'];
-
   String _selectedCurrency = 'USD';
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = DeviceUtils.isDarkMode(context);
-
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return SafeArea(
@@ -50,18 +55,13 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
               controller: _nameCtrl,
               hintText: "Portfolio Name",
             ),
-
             const SizedBox(height: AppSizes.spaceMD),
-
             SelectField(
               title: "Select Currency",
               value: _selectedCurrency,
-              onTap: () => _openCurrencyPicker(),
+              onTap: _openCurrencyPicker,
             ),
-
             const SizedBox(height: AppSizes.spaceMD),
-
-            /// Actions
             PrimaryButton(
               label: "Done",
               onPressed: () {
@@ -73,7 +73,7 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
                 context.read<PortfolioBloc>().add(
                   UpsertPortfolio(
                     PortfolioModel(
-                      id: now.microsecondsSinceEpoch.toString(),
+                      id: _uuid.v4(), // ← timestamp yerine UUID
                       name: name,
                       baseCurrencyCode: _selectedCurrency,
                       createdAt: now,
@@ -119,9 +119,7 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
                     ? const Icon(Icons.check)
                     : null,
                 onTap: () {
-                  setState(() {
-                    _selectedCurrency = currency;
-                  });
+                  setState(() => _selectedCurrency = currency);
                   Navigator.pop(context);
                 },
               ),

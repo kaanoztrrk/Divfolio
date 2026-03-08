@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_size.dart';
 import '../../widget/image/app_image.dart';
 import '../../widget/text/app_text.dart';
 import 'device_utility.dart';

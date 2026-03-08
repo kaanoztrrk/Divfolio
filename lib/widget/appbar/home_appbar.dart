@@ -2,7 +2,7 @@ import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
+import '../../core/constants/app_colors.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key, this.onSettingsTap});

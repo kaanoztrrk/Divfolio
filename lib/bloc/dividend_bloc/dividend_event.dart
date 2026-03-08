@@ -58,3 +58,7 @@ class LoadDividendSummary extends DividendEvent {
 class ResetDividendState extends DividendEvent {
   const ResetDividendState();
 }
+
+class LoadAllDividends extends DividendEvent {
+  const LoadAllDividends();
+}

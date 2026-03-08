@@ -1,5 +1,5 @@
-import 'package:divfolio/constants/app_colors.dart';
-import 'package:divfolio/constants/app_size.dart';
+import 'package:divfolio/core/constants/app_colors.dart';
+import 'package:divfolio/core/constants/app_size.dart';
 import 'package:flutter/material.dart';
 
 import 'package:divfolio/core/routes/app_routes.dart';

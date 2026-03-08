@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/enum/decimal_format.dart';
 import '../../core/utils/device_utility.dart';
 import '../../cubit/decimal_format_cubit.dart';

@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../data/model/portfolio_model.dart';
 import '../../presentation/dividend/dividend_history_detail/dividend_history_detail_view.dart';
 import '../../presentation/home/home_view.dart';
 import '../../presentation/portfolio/portfolio_detail/portfolio_detail_view.dart';
 import '../../presentation/splash/splash_view.dart';
-import '../../service/hive_manager.dart';
 import '../init/locator.dart';
 import 'app_routes.dart';
 
@@ -51,15 +51,16 @@ class AppRouter {
         );
 
       case AppRoutes.portfolioDetails:
-        final portfolioId = settings.arguments as String;
+        final portfolio = settings.arguments as PortfolioModel;
 
         return MaterialPageRoute(
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: getIt<PortfolioBloc>()),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
               BlocProvider.value(value: getIt<DividendBloc>()),
             ],
-            child: PortfolioDetailView(portfolioId: portfolioId),
+            child: PortfolioDetailView(portfolio: portfolio),
           ),
         );
 

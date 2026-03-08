@@ -9,6 +9,7 @@ abstract class HoldingRepository {
   Future<HoldingModel> createHolding(HoldingModel draft);
   Future<HoldingModel> updateHolding(HoldingModel holding);
   Future<void> deleteHolding(String holdingId);
+  Future<List<HoldingModel>> getAllHoldings();
 }
 
 class HiveHoldingRepository implements HoldingRepository {
@@ -47,7 +48,6 @@ class HiveHoldingRepository implements HoldingRepository {
       shares: draft.shares,
       avgCost: draft.avgCost,
       currencyCode: draft.currencyCode,
-      payDate: draft.payDate,
       createdAt: now,
       updatedAt: now,
     );
@@ -71,5 +71,13 @@ class HiveHoldingRepository implements HoldingRepository {
   @override
   Future<void> deleteHolding(String holdingId) {
     return _hive.delete(_box, holdingId);
+  }
+
+  @override
+  Future<List<HoldingModel>> getAllHoldings() async {
+    final list = _hive.where<HoldingModel>(_box, (h) => true)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return list;
   }
 }

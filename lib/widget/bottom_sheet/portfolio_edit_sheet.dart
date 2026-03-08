@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_event.dart';
-import '../../constants/app_size.dart';
-import '../../constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
 import '../../data/model/portfolio_model.dart';
 import '../../widget/text/app_text.dart';
 

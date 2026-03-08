@@ -1,10 +1,11 @@
 import 'package:divfolio/core/enum/date_formatter.dart';
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../cubit/date_format_cubit.dart';
 import '../text/app_text.dart';
 import 'app_label_field.dart';
@@ -51,12 +52,12 @@ class _PayDateFieldState extends State<PayDateField> {
 
   Future<void> _openCupertinoPicker() async {
     final fmtCubit = context.read<DateFormatCubit>();
-
+    final isDark = DeviceUtils.isDarkMode(context);
     DateTime temp = _selected;
 
     await showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppSizes.radiusLG),
@@ -79,7 +80,9 @@ class _PayDateFieldState extends State<PayDateField> {
                       child: AppText(
                         text: "Cancel",
                         type: AppTextType.titleSmall,
-                        color: AppColors.textSecondary,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -103,7 +106,10 @@ class _PayDateFieldState extends State<PayDateField> {
                   ],
                 ),
               ),
-              const Divider(height: 1),
+              Divider(
+                height: 1,
+                color: isDark ? AppColors.dividerDark : AppColors.divider,
+              ),
               Expanded(
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.date,

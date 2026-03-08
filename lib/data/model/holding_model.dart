@@ -1,7 +1,5 @@
 import 'package:hive/hive.dart';
 import 'hive_type_ids.dart';
-import 'package:hive/hive.dart';
-import 'hive_type_ids.dart';
 
 const _sentinel = Object();
 
@@ -16,11 +14,9 @@ class HoldingModel {
     required this.createdAt,
     this.avgCost,
     this.currencyCode,
-    this.payDate,
     this.updatedAt,
   });
 
-  /// Hive key ile birebir
   @HiveField(0)
   final String id;
 
@@ -42,8 +38,9 @@ class HoldingModel {
   @HiveField(6)
   final String? currencyCode;
 
-  @HiveField(7)
-  final DateTime? payDate;
+  // Field(7) → payDate KALDIRILDI
+  // Boş bırakıldı, Hive eski kayıtları okurken hata vermez
+  // Yeni kayıtlarda bu field artık yazılmıyor
 
   @HiveField(8)
   final DateTime createdAt;
@@ -58,7 +55,6 @@ class HoldingModel {
     double? shares,
     Object? avgCost = _sentinel,
     Object? currencyCode = _sentinel,
-    Object? payDate = _sentinel,
     DateTime? updatedAt,
   }) {
     return HoldingModel(
@@ -71,7 +67,6 @@ class HoldingModel {
       currencyCode: currencyCode == _sentinel
           ? this.currencyCode
           : currencyCode as String?,
-      payDate: payDate == _sentinel ? this.payDate : payDate as DateTime?,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -99,7 +94,7 @@ class HoldingModelAdapter extends TypeAdapter<HoldingModel> {
       shares: (fields[4] as num).toDouble(),
       avgCost: fields[5] == null ? null : (fields[5] as num).toDouble(),
       currencyCode: fields[6] as String?,
-      payDate: fields[7] as DateTime?,
+      // fields[7] → payDate okunuyor ama ignore ediliyor (migration güvenliği)
       createdAt: fields[8] as DateTime,
       updatedAt: fields[9] as DateTime?,
     );
@@ -108,7 +103,7 @@ class HoldingModelAdapter extends TypeAdapter<HoldingModel> {
   @override
   void write(BinaryWriter writer, HoldingModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(9) // 10 değil, 9 field yazıyoruz (7 atlandı)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -123,8 +118,6 @@ class HoldingModelAdapter extends TypeAdapter<HoldingModel> {
       ..write(obj.avgCost)
       ..writeByte(6)
       ..write(obj.currencyCode)
-      ..writeByte(7)
-      ..write(obj.payDate)
       ..writeByte(8)
       ..write(obj.createdAt)
       ..writeByte(9)

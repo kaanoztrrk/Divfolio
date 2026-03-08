@@ -1,21 +1,16 @@
-// holding_state.dart
 import 'package:equatable/equatable.dart';
 import '../../data/model/holding_model.dart';
 
 class HoldingState extends Equatable {
   final bool loading;
   final String? error;
-
   final String? selectedPortfolioId;
   final HoldingModel? editingHolding;
-
   final String companyId;
   final String companyName;
   final double shares;
   final double? avgCost;
   final String currencyCode;
-  final DateTime? payDate;
-
   final List<HoldingModel> holdings;
 
   const HoldingState({
@@ -28,9 +23,9 @@ class HoldingState extends Equatable {
     this.shares = 0,
     this.avgCost,
     this.currencyCode = 'USD',
-    this.payDate,
     this.holdings = const [],
   });
+  // payDate KALDIRILDI → DividendModel'e ait
 
   HoldingState copyWith({
     bool? loading,
@@ -38,25 +33,26 @@ class HoldingState extends Equatable {
     bool clearError = false,
     String? selectedPortfolioId,
     HoldingModel? editingHolding,
+    bool clearEditingHolding = false,
     String? companyId,
     String? companyName,
     double? shares,
-    double? avgCost,
+    Object? avgCost = _sentinel,
     String? currencyCode,
-    DateTime? payDate,
     List<HoldingModel>? holdings,
   }) {
     return HoldingState(
       loading: loading ?? this.loading,
       error: clearError ? null : (error ?? this.error),
       selectedPortfolioId: selectedPortfolioId ?? this.selectedPortfolioId,
-      editingHolding: editingHolding ?? this.editingHolding,
+      editingHolding: clearEditingHolding
+          ? null
+          : (editingHolding ?? this.editingHolding),
       companyId: companyId ?? this.companyId,
       companyName: companyName ?? this.companyName,
       shares: shares ?? this.shares,
-      avgCost: avgCost ?? this.avgCost,
+      avgCost: avgCost == _sentinel ? this.avgCost : avgCost as double?,
       currencyCode: currencyCode ?? this.currencyCode,
-      payDate: payDate ?? this.payDate,
       holdings: holdings ?? this.holdings,
     );
   }
@@ -72,7 +68,8 @@ class HoldingState extends Equatable {
     shares,
     avgCost,
     currencyCode,
-    payDate,
     holdings,
   ];
 }
+
+const _sentinel = Object();

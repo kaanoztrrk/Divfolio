@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/utils/device_utility.dart';
 import '../text/app_text.dart';
 

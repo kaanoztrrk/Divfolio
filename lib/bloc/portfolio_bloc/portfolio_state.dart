@@ -1,4 +1,3 @@
-// portfolio_state.dart
 import 'package:equatable/equatable.dart';
 import '../../data/model/portfolio_model.dart';
 
@@ -33,12 +32,16 @@ class PortfolioState extends Equatable {
     );
   }
 
+  /// Seçili portfolio'yu döner.
+  /// selectedPortfolioId listede yoksa null döner, portfolios.first değil.
+  /// Bu sayede stale ID ile yanlış portfolio gösterilmez.
   PortfolioModel? get selectedPortfolio {
     if (selectedPortfolioId == null) return null;
-    return portfolios.firstWhere(
-      (p) => p.id == selectedPortfolioId,
-      orElse: () => portfolios.first,
-    );
+    try {
+      return portfolios.firstWhere((p) => p.id == selectedPortfolioId);
+    } catch (_) {
+      return null;
+    }
   }
 
   @override

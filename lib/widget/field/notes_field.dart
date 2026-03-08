@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/theme/custom/text_theme.dart';
 import '../text/app_text.dart';
 
@@ -11,6 +11,7 @@ class NotesField extends StatelessWidget {
   final String hintText;
 
   const NotesField({
+    super.key,
     required this.title,
     required this.controller,
     required this.hintText,

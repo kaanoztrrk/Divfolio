@@ -1,4 +1,7 @@
-import 'package:divfolio/constants/app_colors.dart';
+import 'package:divfolio/bloc/dividend_bloc/dividend_event.dart';
+import 'package:divfolio/bloc/holding/holding_bloc.dart';
+import 'package:divfolio/bloc/holding/holding_event.dart';
+import 'package:divfolio/core/constants/app_colors.dart';
 import 'package:divfolio/widget/bottom_sheet/create_dividend_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,9 +23,9 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PageStorageBucket _bucket = PageStorageBucket();
+    final PageStorageBucket bucket = PageStorageBucket();
 
-    List<Widget> _pages = <Widget>[
+    List<Widget> pages = <Widget>[
       DashboardView(key: PageStorageKey('dashboard')),
       PortfolioView(key: PageStorageKey('portfolios')),
       DividendHistoryView(key: PageStorageKey('history')),
@@ -34,6 +37,13 @@ class HomeView extends StatelessWidget {
         BlocProvider(
           create: (_) => getIt<PortfolioBloc>()..add(LoadPortfolios()),
         ),
+        BlocProvider(
+          create: (_) => getIt<HoldingBloc>()..add(LoadAllHoldings()),
+        ),
+        BlocProvider(
+          create: (_) => getIt<DividendBloc>()..add(LoadAllDividends()),
+        ),
+
         BlocProvider(create: (_) => HomeNavCubit()),
       ],
 
@@ -48,8 +58,8 @@ class HomeView extends StatelessWidget {
             appBar: HomeAppBar(),
 
             body: PageStorage(
-              bucket: _bucket,
-              child: IndexedStack(index: index, children: _pages),
+              bucket: bucket,
+              child: IndexedStack(index: index, children: pages),
             ),
 
             floatingActionButton: showFab

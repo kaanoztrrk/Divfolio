@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
 import 'hive_type_ids.dart';

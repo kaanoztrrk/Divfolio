@@ -16,29 +16,25 @@ class LoadHoldings extends HoldingEvent {
   List<Object?> get props => [portfolioId];
 }
 
-/// Form alanlarını parça parça güncellemek için
 class UpdateHoldingForm extends HoldingEvent {
   const UpdateHoldingForm({
     this.editingHolding,
-    this.portfolioId, // <-- yeni ekledik
+    this.portfolioId,
     this.companyId,
     this.companyName,
     this.shares,
     this.avgCost,
     this.currencyCode,
-    this.payDate,
   });
 
-  /// null değilse update, null ise create
   final HoldingModel? editingHolding;
-
-  final String? portfolioId; // <-- yeni alan
+  final String? portfolioId;
   final String? companyId;
   final String? companyName;
   final double? shares;
   final double? avgCost;
   final String? currencyCode;
-  final DateTime? payDate;
+  // payDate KALDIRILDI → DividendModel'e ait
 }
 
 class SubmitHolding extends HoldingEvent {
@@ -51,4 +47,12 @@ class DeleteHolding extends HoldingEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class ResetHoldingForm extends HoldingEvent {
+  const ResetHoldingForm();
+}
+
+class LoadAllHoldings extends HoldingEvent {
+  const LoadAllHoldings();
 }

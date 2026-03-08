@@ -1,14 +1,17 @@
-import 'package:divfolio/constants/app_colors.dart';
-import 'package:divfolio/constants/app_images.dart';
-import 'package:divfolio/constants/app_size.dart';
+import 'package:divfolio/core/constants/app_colors.dart';
+import 'package:divfolio/core/constants/app_images.dart';
+import 'package:divfolio/core/constants/app_size.dart';
 import 'package:divfolio/core/utils/money_extension.dart';
-import 'package:divfolio/cubit/currency_cubit.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_state.dart';
+import '../../bloc/holding/holding_bloc.dart';
+import '../../bloc/holding/holding_state.dart';
+import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../bloc/portfolio_bloc/portfolio_state.dart';
 import '../../core/theme/custom/text_theme.dart';
 import '../../core/utils/device_utility.dart';
 import '../../core/utils/empty_state.dart';
@@ -27,24 +30,37 @@ class DashboardView extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSizes.spaceMD),
-          child: BlocBuilder<DividendBloc, DividendState>(
-            builder: (context, state) {
-              final items = state.dividends;
-              final recent = items.take(5).toList();
+          child: BlocBuilder<PortfolioBloc, PortfolioState>(
+            builder: (context, portfolioState) {
+              final portfolio = portfolioState.selectedPortfolio;
+              final baseCurrency = portfolio?.baseCurrencyCode ?? 'USD';
+              final currencySymbol = _currencySymbol(baseCurrency);
 
-              return Column(
-                children: [
-                  // ---- HEADER her zaman ----
-                  BlocBuilder<CurrencyCubit, CurrencyState>(
-                    builder: (context, _) {
-                      return BlocBuilder<
-                        DecimalFormatCubit,
-                        DecimalFormatState
-                      >(
-                        builder: (context, __) {
-                          return Column(
+              return BlocBuilder<DividendBloc, DividendState>(
+                builder: (context, dividendState) {
+                  final items = dividendState.dividends;
+                  final recent = items.take(5).toList();
+
+                  // Seçili portfolio'nun para birimine göre toplam
+                  final totalNet =
+                      dividendState.totalsByCurrency[baseCurrency] ?? 0.0;
+
+                  // Yıllık toplam — mevcut yıl filtreli
+                  final currentYear = DateTime.now().year;
+                  final annualNet = items
+                      .where((d) => d.payDate.year == currentYear)
+                      .fold<double>(0, (sum, d) => sum + d.netAmount);
+
+                  return BlocBuilder<HoldingBloc, HoldingState>(
+                    builder: (context, holdingState) {
+                      final holdingCount = holdingState.holdings.length;
+
+                      return Column(
+                        children: [
+                          // ---- HEADER ----
+                          Column(
                             children: [
-                              SizedBox(height: AppSizes.spaceXL),
+                              const SizedBox(height: AppSizes.spaceXL),
                               AppText(
                                 text: "TOTAL NET DIVIDENDS",
                                 type: AppTextType.labelMedium,
@@ -53,8 +69,12 @@ class DashboardView extends StatelessWidget {
                                     : AppColors.textSecondary,
                               ),
                               const SizedBox(height: AppSizes.spaceMD),
+                              // Toplam: seçili portfolio + baseCurrency
                               AppText(
-                                text: 12345.67.money(context),
+                                text: totalNet.moneyWithSymbol(
+                                  context,
+                                  baseCurrency,
+                                ),
                                 type: AppTextType.displayMedium,
                                 color: isDark
                                     ? AppColors.textPrimaryDark
@@ -62,28 +82,13 @@ class DashboardView extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                               ),
                               const SizedBox(height: AppSizes.spaceSM),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "+5.67%",
-                                      style: AppTextTheme.textTheme.labelMedium!
-                                          .copyWith(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                    ),
-                                    TextSpan(
-                                      text: " this year",
-                                      style: AppTextTheme.textTheme.labelMedium!
-                                          .copyWith(
-                                            color: isDark
-                                                ? AppColors.textSecondaryDark
-                                                : AppColors.textSecondary,
-                                          ),
-                                    ),
-                                  ],
-                                ),
+                              // Portfolio adı göster
+                              AppText(
+                                text: portfolio?.name ?? '',
+                                type: AppTextType.labelMedium,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondary,
                               ),
                               const SizedBox(height: AppSizes.spaceXXL),
                               PortfolioStatsRow(
@@ -91,11 +96,12 @@ class DashboardView extends StatelessWidget {
                                     ? AppColors.surfaceDark
                                     : AppColors.surface,
                                 firstTitle: 'Annual',
-                                firstValue: 1200.money(context),
-                                secondTitle: 'Yield',
-                                secondValue: '5.6%',
+                                firstValue:
+                                    '$currencySymbol${annualNet.toStringAsFixed(2)}',
+                                secondTitle: 'Currency',
+                                secondValue: baseCurrency,
                                 thirdTitle: 'Holdings',
-                                thirdValue: '24',
+                                thirdValue: holdingCount.toString(),
                               ),
                               const SizedBox(height: AppSizes.spaceXL),
                               Divider(
@@ -105,66 +111,79 @@ class DashboardView extends StatelessWidget {
                               ),
                               const SizedBox(height: AppSizes.spaceMD),
                             ],
-                          );
-                        },
+                          ),
+
+                          // ---- BODY ----
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                if (dividendState.loading && items.isEmpty) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+
+                                if (dividendState.error != null &&
+                                    items.isEmpty) {
+                                  return Center(
+                                    child: AppText(
+                                      text: dividendState.error!,
+                                      type: AppTextType.bodyMedium,
+                                      color: AppColors.error,
+                                    ),
+                                  );
+                                }
+
+                                if (items.isEmpty) {
+                                  return Center(
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 340,
+                                      ),
+                                      child: const EmptyState(
+                                        imagePath: AppImages.emptyReport,
+                                        title: "Your portfolio is empty",
+                                        subtitle:
+                                            "Add your holdings to see dividend reports.",
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                return ListView.builder(
+                                  itemCount: recent.length,
+                                  itemBuilder: (context, index) {
+                                    return DividendTile(
+                                      dividend: recent[index],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     },
-                  ),
-
-                  // ---- BODY: PortfoliosView mantığı ----
-                  Expanded(
-                    child: Builder(
-                      builder: (context) {
-                        // loading sadece ilk yüklemede empty ise göster
-                        if (state.loading && items.isEmpty) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        // error + empty
-                        if (state.error != null && items.isEmpty) {
-                          return Center(
-                            child: AppText(
-                              text: state.error!,
-                              type: AppTextType.bodyMedium,
-                              color: AppColors.error,
-                            ),
-                          );
-                        }
-
-                        // empty ama header kalsın: compact empty
-                        if (items.isEmpty) {
-                          return Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 340),
-                              child: const EmptyState(
-                                imagePath: AppImages.emptyReport,
-                                title: "Your portfolio is empty",
-                                subtitle:
-                                    "Add your holdings to see dividend reports.",
-                              ),
-                            ),
-                          );
-                        }
-
-                        // doluysa: recent list
-                        return ListView.builder(
-                          itemCount: recent.length,
-                          itemBuilder: (context, index) {
-                            final dividend = recent[index];
-                            return DividendTile(dividend: dividend);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                  );
+                },
               );
             },
           ),
         ),
       ),
     );
+  }
+
+  String _currencySymbol(String code) {
+    switch (code.toUpperCase()) {
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'TRY':
+        return '₺';
+      default:
+        return code;
+    }
   }
 }

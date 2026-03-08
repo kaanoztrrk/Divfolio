@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/utils/device_utility.dart';
-import '../../cubit/currency_cubit.dart';
 import '../../cubit/date_format_cubit.dart';
 import '../../cubit/theme_cubit.dart';
-import '../../widget/bottom_sheet/currency_bottom_sheet.dart';
 import '../../widget/bottom_sheet/date_format_sheet.dart';
 import '../../widget/bottom_sheet/decimal_format_sheet.dart';
 import '../../widget/bottom_sheet/theme_sheet.dart';
+
+// CurrencyCubit import KALDIRILDI
+// CurrencyBottomSheet import KALDIRILDI
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -45,7 +46,6 @@ class SettingsView extends StatelessWidget {
                       value: state.selected.name,
                       onTap: () async {
                         final cubit = context.read<ThemeCubit>();
-
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
@@ -74,50 +74,15 @@ class SettingsView extends StatelessWidget {
             _SettingsCard(
               isDark: isDark,
               children: [
-                BlocBuilder<CurrencyCubit, CurrencyState>(
-                  builder: (context, state) {
-                    return _SettingsTile(
-                      isDark: isDark,
-
-                      icon: Icons.attach_money_rounded,
-                      title: 'Default Currency',
-                      value:
-                          '${state.selected.code} (${state.selected.symbol})',
-                      onTap: () async {
-                        final cubit = context.read<DecimalFormatCubit>();
-
-                        await showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: isDark
-                              ? AppColors.surfaceDark
-                              : AppColors.surface,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(AppSizes.radiusLG),
-                            ),
-                          ),
-                          builder: (_) => BlocProvider.value(
-                            value: cubit,
-                            child: const CurrencyBottomSheet(),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                const _SettingsDivider(),
                 BlocBuilder<DecimalFormatCubit, DecimalFormatState>(
                   builder: (context, state) {
                     return _SettingsTile(
                       isDark: isDark,
-
                       icon: Icons.exposure_rounded,
                       title: 'Decimal Format',
                       value: state.selected.label,
                       onTap: () async {
                         final cubit = context.read<DecimalFormatCubit>();
-
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
@@ -143,13 +108,11 @@ class SettingsView extends StatelessWidget {
                   builder: (context, state) {
                     return _SettingsTile(
                       isDark: isDark,
-
                       icon: Icons.calendar_month_rounded,
                       title: 'Date Format',
                       value: state.selected.previewNow(),
                       onTap: () async {
                         final cubit = context.read<DateFormatCubit>();
-
                         await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
@@ -180,7 +143,6 @@ class SettingsView extends StatelessWidget {
               children: [
                 _SettingsTile(
                   isDark: isDark,
-
                   icon: Icons.document_scanner,
                   title: 'Export Data to CSV',
                   value: 'System',
@@ -195,14 +157,13 @@ class SettingsView extends StatelessWidget {
               children: [
                 _SettingsTile(
                   isDark: isDark,
-
                   icon: Icons.shield_outlined,
                   title: 'Privacy Policy',
                   value: '',
                 ),
+                _SettingsDivider(),
                 _SettingsTile(
                   isDark: isDark,
-
                   icon: Icons.shield_outlined,
                   title: 'Terms of Service',
                   value: '',
@@ -216,9 +177,9 @@ class SettingsView extends StatelessWidget {
   }
 }
 
+// Alt widget'lar aynı kalıyor
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text, this.isDark);
-
   final String text;
   final bool isDark;
 
@@ -237,7 +198,6 @@ class _SectionTitle extends StatelessWidget {
 
 class _SettingsCard extends StatelessWidget {
   const _SettingsCard({required this.children, required this.isDark});
-
   final List<Widget> children;
   final bool isDark;
 
@@ -334,6 +294,14 @@ class _SettingsDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(height: 1, thickness: 1, color: AppColors.divider);
+    final isDark = DeviceUtils.isDarkMode(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Divider(
+        height: 1,
+        thickness: 1,
+        color: isDark ? AppColors.dividerDark : AppColors.divider,
+      ),
+    );
   }
 }

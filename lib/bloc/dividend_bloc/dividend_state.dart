@@ -1,17 +1,17 @@
-// dividend_state.dart
 import 'package:equatable/equatable.dart';
 import '../../data/model/dividend_model.dart';
 
 class DividendState extends Equatable {
   final bool loading;
   final String? error;
-
   final String? selectedPortfolioId;
   final String? selectedCompanyId;
-
   final List<DividendModel> dividends;
-
   final int? summaryYear;
+
+  /// Para birimi bazlı net toplamlar
+  /// Örn: {'TRY': 1500.0, 'USD': 200.0}
+  /// Farklı para birimleri asla tek sayıya indirilmez
   final Map<String, double> totalsByCurrency;
   final Map<String, Map<String, double>> byCompanyByCurrency;
 
@@ -24,6 +24,8 @@ class DividendState extends Equatable {
     this.summaryYear,
     this.totalsByCurrency = const {},
     this.byCompanyByCurrency = const {},
+    // totalNetDividends KALDIRILDI → farklı para birimlerini
+    // tek sayıya indirmek yanıltıcı
   });
 
   DividendState copyWith({

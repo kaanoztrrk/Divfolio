@@ -1,4 +1,4 @@
-import 'package:divfolio/constants/app_colors.dart';
+import 'package:divfolio/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import '../text/app_text.dart';

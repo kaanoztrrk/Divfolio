@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../../core/theme/custom/text_theme.dart';
 import '../../core/utils/device_utility.dart';
 import '../text/app_text.dart';
@@ -14,6 +14,7 @@ class MiniInputField extends StatelessWidget {
   final Function(String)? onChanged;
 
   const MiniInputField({
+    super.key,
     required this.title,
     required this.controller,
     required this.hintText,

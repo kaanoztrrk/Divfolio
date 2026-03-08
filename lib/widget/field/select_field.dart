@@ -1,8 +1,8 @@
 import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../text/app_text.dart';
 
 class SelectField extends StatelessWidget {

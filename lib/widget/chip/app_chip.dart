@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_size.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_size.dart';
 import '../text/app_text.dart';
 
 class AppChip extends StatelessWidget {
@@ -10,10 +10,8 @@ class AppChip extends StatelessWidget {
   final IconData? trailingIcon;
   final AppTextType? type;
 
-  /// Otomatik + / - için
   final double? signedValue;
 
-  /// Manuel override rengi
   final Color? color;
 
   const AppChip({
@@ -27,10 +25,8 @@ class AppChip extends StatelessWidget {
   });
 
   Color _resolveColor() {
-    // 1. Manuel renk her zaman öncelikli
     if (color != null) return color!;
 
-    // 2. Numeric kontrol
     if (signedValue != null) {
       if (signedValue! > 0) return AppColors.success;
       if (signedValue! < 0) return AppColors.error;
@@ -40,7 +36,6 @@ class AppChip extends StatelessWidget {
     if (label.startsWith('+')) return AppColors.success;
     if (label.startsWith('-')) return AppColors.error;
 
-    // 4. Default
     return AppColors.primary;
   }
 

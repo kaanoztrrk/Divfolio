@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
+import '../constants/app_colors.dart';
 
 ThemeData appTheme = ThemeData(
   useMaterial3: true,
@@ -32,6 +32,5 @@ ThemeData appThemeDark = ThemeData(
     secondary: AppColors.secondary,
     error: AppColors.error,
     surface: AppColors.surfaceDark,
-    background: AppColors.backgroundDark,
   ),
 );
