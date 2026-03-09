@@ -12,10 +12,8 @@ import '../../bloc/holding/holding_bloc.dart';
 import '../../bloc/holding/holding_state.dart';
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_state.dart';
-import '../../core/theme/custom/text_theme.dart';
 import '../../core/utils/device_utility.dart';
 import '../../core/utils/empty_state.dart';
-import '../../cubit/decimal_format_cubit.dart';
 import '../../widget/tile/dividend_tile.dart';
 import 'widget/portfolio_stats_row.dart';
 
@@ -38,6 +36,13 @@ class DashboardView extends StatelessWidget {
 
               return BlocBuilder<DividendBloc, DividendState>(
                 builder: (context, dividendState) {
+                  print(
+                    'dState totalsByCurrency: ${dividendState.totalsByCurrency}',
+                  );
+                  print(
+                    'dState byCompanyByCurrency: ${dividendState.byCompanyByCurrency}',
+                  );
+
                   final items = dividendState.dividends;
                   final recent = items.take(5).toList();
 

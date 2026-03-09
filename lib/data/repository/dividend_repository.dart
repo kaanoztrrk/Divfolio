@@ -94,6 +94,16 @@ class HiveDividendRepository implements DividendRepository {
     int? year,
   }) async {
     final list = await getDividends(portfolioId);
+    for (final d in list) {
+      print(
+        'holdingId=${d.holdingId} '
+        'shares=${d.sharesAtPayDate} '
+        'divPerShare=${d.dividendPerShare} '
+        'netOverride=${d.netOverride} '
+        'netAmount=${d.netAmount} '
+        'year=${d.payDate.year}',
+      );
+    }
 
     final result = <String, Map<String, double>>{};
     for (final d in list) {
@@ -133,6 +143,7 @@ class HiveDividendRepository implements DividendRepository {
     return LinkedHashMap.fromEntries(keys.map((k) => MapEntry(k, input[k]!)));
   }
 
+  @override
   Future<List<DividendModel>> getAllDividends() async {
     final list = _hive.getAll<DividendModel>(_box)
       ..sort((a, b) => b.payDate.compareTo(a.payDate));

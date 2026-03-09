@@ -10,23 +10,19 @@ class AdvancedOptionsSection extends StatelessWidget {
   final TextEditingController divPerShareController;
   final TextEditingController notesController;
 
-  final String portfolioLabel;
-  final VoidCallback onTapPortfolio;
+  // portfolioLabel ve onTapPortfolio KALDIRILDI
 
   const AdvancedOptionsSection({
     super.key,
     required this.sharesController,
     required this.divPerShareController,
     required this.notesController,
-    required this.portfolioLabel,
-    required this.onTapPortfolio,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // --- top row: 2 small boxes ---
         Row(
           children: [
             Expanded(
@@ -50,19 +46,8 @@ class AdvancedOptionsSection extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: AppSizes.spaceMD),
-
-        // --- portfolio dropdown field ---
-        SelectField(
-          title: "PORTFOLIO",
-          value: portfolioLabel,
-          onTap: onTapPortfolio,
-        ),
-
-        const SizedBox(height: AppSizes.spaceMD),
-
-        // --- notes area ---
+        // SelectField (portfolio) KALDIRILDI
         NotesField(
           title: "NOTES",
           controller: notesController,

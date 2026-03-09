@@ -55,14 +55,17 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
     Emitter<HoldingState> emit,
   ) {
     emit(
-      state.copyWith(
-        editingHolding: event.editingHolding,
-        selectedPortfolioId: event.portfolioId,
-        companyId: event.companyId,
-        companyName: event.companyName,
-        shares: event.shares,
-        avgCost: event.avgCost,
-        currencyCode: event.currencyCode,
+      HoldingState(
+        loading: state.loading,
+        error: state.error,
+        selectedPortfolioId: event.portfolioId ?? state.selectedPortfolioId,
+        editingHolding: event.editingHolding ?? state.editingHolding,
+        companyId: event.companyId ?? state.companyId,
+        companyName: event.companyName ?? state.companyName,
+        shares: event.shares ?? state.shares,
+        avgCost: event.avgCost ?? state.avgCost,
+        currencyCode: event.currencyCode ?? state.currencyCode,
+        holdings: state.holdings,
       ),
     );
   }
@@ -97,6 +100,10 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
             createdAt: DateTime.now(),
           ),
         );
+        print(
+          'SubmitHolding → pid=$pid avgCost=${state.avgCost} shares=${state.shares}',
+        );
+
         _log.debug(
           "➕ Holding created | companyId=${state.companyId}",
           tag: 'HOLDING',

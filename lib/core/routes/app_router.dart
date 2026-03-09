@@ -65,7 +65,16 @@ class AppRouter {
         );
 
       case AppRoutes.addDividend:
-        return MaterialPageRoute(builder: (_) => const AddDividendView());
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<PortfolioBloc>()),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
+              BlocProvider.value(value: getIt<DividendBloc>()),
+            ],
+            child: const AddDividendView(),
+          ),
+        );
 
       case AppRoutes.addHolding:
         return MaterialPageRoute(
@@ -75,6 +84,7 @@ class AppRouter {
                 value: getIt<PortfolioBloc>()..add(LoadPortfolios()),
               ),
               BlocProvider.value(value: getIt<HoldingBloc>()),
+              BlocProvider.value(value: getIt<DividendBloc>()),
             ],
             child: AddHoldingView(),
           ),

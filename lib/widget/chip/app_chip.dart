@@ -39,9 +39,18 @@ class AppChip extends StatelessWidget {
     return AppColors.primary;
   }
 
+  IconData? _resolveTrailingIcon() {
+    if (trailingIcon != null) return trailingIcon; // override varsa kullan
+    if (signedValue == null) return null;
+    if (signedValue! > 0) return Icons.trending_up_rounded;
+    if (signedValue! < 0) return Icons.trending_down_rounded;
+    return Icons.trending_flat_rounded; // sıfır
+  }
+
   @override
   Widget build(BuildContext context) {
     final baseColor = _resolveColor();
+    final resolvedTrailingIcon = _resolveTrailingIcon();
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -69,10 +78,10 @@ class AppChip extends StatelessWidget {
             color: baseColor.withValues(alpha: 0.7),
             fontWeight: FontWeight.w600,
           ),
-          if (trailingIcon != null) ...[
+          if (resolvedTrailingIcon != null) ...[
             const SizedBox(width: 4),
             Icon(
-              trailingIcon,
+              resolvedTrailingIcon,
               size: 14,
               color: baseColor.withValues(alpha: 0.7),
             ),

@@ -1,3 +1,4 @@
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -19,13 +20,16 @@ class NotesField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.spaceMD),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.border,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +37,7 @@ class NotesField extends StatelessWidget {
           AppText(
             text: title,
             type: AppTextType.labelSmall,
-            color: AppColors.textSecondary,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textSecondary,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
           ),
@@ -44,13 +48,15 @@ class NotesField extends StatelessWidget {
             keyboardType: TextInputType.multiline,
             style: AppTextTheme.textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: AppTextTheme.textTheme.titleMedium!.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary.withValues(alpha: 0.6),
+                color: isDark
+                    ? AppColors.textSecondaryDark.withValues(alpha: 0.6)
+                    : AppColors.textSecondary.withValues(alpha: 0.6),
               ),
               border: InputBorder.none,
               isDense: true,

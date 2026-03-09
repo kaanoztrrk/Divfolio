@@ -12,11 +12,13 @@ class EmptyState extends StatelessWidget {
     required this.imagePath,
     required this.title,
     this.subtitle,
+    this.imageSize = 150, // default 150
   });
 
   final String imagePath;
   final String title;
   final String? subtitle;
+  final double imageSize;
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +26,14 @@ class EmptyState extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final maxHeight = constraints.maxHeight.isInfinite
+            ? null // ListView içindeyse minHeight zorlama
+            : constraints.maxHeight;
+
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            constraints: BoxConstraints(minHeight: maxHeight ?? 0),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 420),
@@ -40,22 +46,20 @@ class EmptyState extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 150,
-                          maxHeight: 150,
+                        constraints: BoxConstraints(
+                          maxWidth: imageSize,
+                          maxHeight: imageSize,
                         ),
                         child: AppImage(
                           assetPath: imagePath,
-                          width: 150,
-                          height: 150,
+                          width: imageSize,
+                          height: imageSize,
                           color: isDark
                               ? AppColors.background
                               : AppColors.backgroundDark,
                         ),
                       ),
-
                       const SizedBox(height: AppSizes.spaceXL),
-
                       AppText(
                         text: title,
                         type: AppTextType.titleMedium,
@@ -65,7 +69,6 @@ class EmptyState extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         textAlign: TextAlign.center,
                       ),
-
                       if (subtitle != null) ...[
                         const SizedBox(height: AppSizes.spaceSM),
                         AppText(

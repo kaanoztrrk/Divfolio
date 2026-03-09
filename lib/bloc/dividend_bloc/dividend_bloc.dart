@@ -221,6 +221,8 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
             portfolioId: event.portfolioId,
             year: event.year,
           );
+      print('totalsByCurrency after summary: $totalsByCurrency');
+      print('byCompanyByCurrency after summary: $byCompanyByCurrency');
 
       emit(
         state.copyWith(
