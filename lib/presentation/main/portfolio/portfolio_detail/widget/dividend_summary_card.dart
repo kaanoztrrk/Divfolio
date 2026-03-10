@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_size.dart';
-import '../../../../widget/text/app_text.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_size.dart';
+import '../../../../../widget/text/app_text.dart';
 
 class DividendSummaryCard extends StatelessWidget {
   final bool isDark;

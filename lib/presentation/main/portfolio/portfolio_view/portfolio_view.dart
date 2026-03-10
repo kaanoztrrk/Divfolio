@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../bloc/holding/holding_bloc.dart';
-import '../../../bloc/holding/holding_state.dart';
-import '../../../bloc/portfolio_bloc/portfolio_bloc.dart';
-import '../../../bloc/portfolio_bloc/portfolio_state.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_size.dart';
-import '../../../widget/text/app_text.dart';
-import '../../../widget/tile/portfolio_tile.dart';
+import '../../../../bloc/holding/holding_bloc.dart';
+import '../../../../bloc/holding/holding_state.dart';
+import '../../../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../../../bloc/portfolio_bloc/portfolio_state.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_size.dart';
+import '../../../../widget/text/app_text.dart';
+import '../../../../widget/tile/portfolio_tile.dart';
 
 class PortfolioView extends StatelessWidget {
   const PortfolioView({super.key});

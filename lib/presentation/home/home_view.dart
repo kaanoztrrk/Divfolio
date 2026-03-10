@@ -15,7 +15,7 @@ import '../../cubit/home_nav_cubit.dart';
 import '../../widget/bottombar/bottombar.dart';
 import '../dashboard/dashboard_view.dart';
 import '../dividend_history/dividend_history_view.dart';
-import '../portfolio/portfolio_view/portfolio_view.dart';
+import '../main/portfolio/portfolio_view/portfolio_view.dart';
 import '../settings/settings_view.dart';
 
 class HomeView extends StatelessWidget {

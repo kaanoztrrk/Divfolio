@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_state.dart';
 import '../../bloc/holding/holding_bloc.dart';
+import '../../bloc/holding/holding_event.dart';
 import '../../bloc/holding/holding_state.dart';
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_state.dart';
@@ -32,17 +33,16 @@ class DashboardView extends StatelessWidget {
             builder: (context, portfolioState) {
               final portfolio = portfolioState.selectedPortfolio;
               final baseCurrency = portfolio?.baseCurrencyCode ?? 'USD';
-              final currencySymbol = _currencySymbol(baseCurrency);
+              final currencySymbol = MoneyX.symbolOf(baseCurrency);
+
+              // HoldingBloc'u tetikle
+              final pid = portfolioState.selectedPortfolioId;
+              if (pid != null) {
+                context.read<HoldingBloc>().add(LoadHoldings(pid));
+              }
 
               return BlocBuilder<DividendBloc, DividendState>(
                 builder: (context, dividendState) {
-                  print(
-                    'dState totalsByCurrency: ${dividendState.totalsByCurrency}',
-                  );
-                  print(
-                    'dState byCompanyByCurrency: ${dividendState.byCompanyByCurrency}',
-                  );
-
                   final items = dividendState.dividends;
                   final recent = items.take(5).toList();
 
@@ -59,6 +59,9 @@ class DashboardView extends StatelessWidget {
                   return BlocBuilder<HoldingBloc, HoldingState>(
                     builder: (context, holdingState) {
                       final holdingCount = holdingState.holdings.length;
+                      final holdingMap = {
+                        for (final h in holdingState.holdings) h.id: h,
+                      };
 
                       return Column(
                         children: [
@@ -74,7 +77,6 @@ class DashboardView extends StatelessWidget {
                                     : AppColors.textSecondary,
                               ),
                               const SizedBox(height: AppSizes.spaceMD),
-                              // Toplam: seçili portfolio + baseCurrency
                               AppText(
                                 text: totalNet.moneyWithSymbol(
                                   context,
@@ -87,7 +89,6 @@ class DashboardView extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                               ),
                               const SizedBox(height: AppSizes.spaceSM),
-                              // Portfolio adı göster
                               AppText(
                                 text: portfolio?.name ?? '',
                                 type: AppTextType.labelMedium,
@@ -158,8 +159,12 @@ class DashboardView extends StatelessWidget {
                                 return ListView.builder(
                                   itemCount: recent.length,
                                   itemBuilder: (context, index) {
+                                    final dividend = recent[index];
+                                    final holding =
+                                        holdingMap[dividend.holdingId];
                                     return DividendTile(
-                                      dividend: recent[index],
+                                      dividend: dividend,
+                                      holding: holding,
                                     );
                                   },
                                 );
@@ -177,18 +182,5 @@ class DashboardView extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _currencySymbol(String code) {
-    switch (code.toUpperCase()) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '€';
-      case 'TRY':
-        return '₺';
-      default:
-        return code;
-    }
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_size.dart';
-import '../../../core/utils/device_utility.dart';
-import '../../../widget/text/app_text.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_size.dart';
+import '../../../../../core/utils/device_utility.dart';
+import '../../../../../widget/text/app_text.dart';
 
 class HoldingCostSummary extends StatelessWidget {
   final double shares;

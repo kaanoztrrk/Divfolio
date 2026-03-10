@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_size.dart';
-import '../../../../widget/text/app_text.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_size.dart';
+import '../../../../../core/utils/device_utility.dart';
+import '../../../../../widget/text/app_text.dart';
 
 class StatDetailRow extends StatelessWidget {
   final String title;
   final String value;
 
-  /// null ise normal davranır
-  /// pozitif / negatif kontrolü için
   final double? signedValue;
 
   const StatDetailRow({
@@ -21,6 +20,7 @@ class StatDetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
     final isPositive = signedValue != null && signedValue! > 0;
     final isNegative = signedValue != null && signedValue! < 0;
 
@@ -41,8 +41,10 @@ class StatDetailRow extends StatelessWidget {
         Expanded(
           child: AppText(
             text: title,
-            type: AppTextType.titleMedium,
-            color: AppColors.textPrimary.withValues(alpha: 0.75),
+            type: AppTextType.titleSmall,
+            color: isDark
+                ? AppColors.textPrimaryDark.withValues(alpha: 0.75)
+                : AppColors.textPrimary.withValues(alpha: 0.75),
           ),
         ),
         if (icon != null) ...[
@@ -51,7 +53,7 @@ class StatDetailRow extends StatelessWidget {
         ],
         AppText(
           text: value,
-          type: AppTextType.titleMedium,
+          type: AppTextType.titleSmall,
           fontWeight: FontWeight.w600,
           color: icon != null ? color : null,
         ),
@@ -67,6 +69,8 @@ class StatDetailList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
     return Column(
       children: List.generate(items.length, (i) {
         final item = items[i];
@@ -79,7 +83,9 @@ class StatDetailList extends StatelessWidget {
             ),
             if (i != items.length - 1) ...[
               SizedBox(height: AppSizes.spaceMD),
-              Divider(color: AppColors.divider),
+              Divider(
+                color: isDark ? AppColors.dividerDark : AppColors.divider,
+              ),
               SizedBox(height: AppSizes.spaceMD),
             ],
           ],

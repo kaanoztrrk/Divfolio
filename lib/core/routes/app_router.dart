@@ -1,16 +1,18 @@
 import 'package:divfolio/bloc/holding/holding_bloc.dart';
 import 'package:divfolio/bloc/portfolio_bloc/portfolio_event.dart';
-import 'package:divfolio/presentation/dividend/add_dividend/add_dividend_view.dart';
-import 'package:divfolio/presentation/add_holding/add_holding_view.dart';
-import 'package:divfolio/presentation/dividend/dividend_detail/dividend_detail_view.dart';
+import 'package:divfolio/presentation/main/dividend/add_dividend/add_dividend_view.dart';
+import 'package:divfolio/presentation/main/holding/add_holding/add_holding_view.dart';
+import 'package:divfolio/presentation/main/dividend/dividend_detail/dividend_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../data/model/dividend_model.dart';
+import '../../data/model/holding_model.dart';
 import '../../data/model/portfolio_model.dart';
-import '../../presentation/dividend/dividend_history_detail/dividend_history_detail_view.dart';
+import '../../presentation/main/holding/holding_detail/holding_detail_view.dart';
 import '../../presentation/home/home_view.dart';
-import '../../presentation/portfolio/portfolio_detail/portfolio_detail_view.dart';
+import '../../presentation/main/portfolio/portfolio_detail/portfolio_detail_view.dart';
 import '../../presentation/splash/splash_view.dart';
 import '../init/locator.dart';
 import 'app_routes.dart';
@@ -35,18 +37,26 @@ class AppRouter {
         );
 
       case AppRoutes.dividendDetail:
+        final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
             value: getIt<DividendBloc>(),
-            child: const DividendDetailView(),
+            child: DividendDetailView(
+              dividend: args['dividend'] as DividendModel,
+              holding: args['holding'] as HoldingModel?,
+            ),
           ),
         );
 
-      case AppRoutes.dividendHistoryDetail:
+      case AppRoutes.holdingDetail:
+        final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: getIt<DividendBloc>(),
-            child: const DividendHistoryDetailView(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<DividendBloc>()),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
+            ],
+            child: HoldingDetailView(holding: args['holding'] as HoldingModel),
           ),
         );
 

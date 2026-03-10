@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/holding/holding_bloc.dart';
-import '../../bloc/holding/holding_event.dart';
-import '../../bloc/holding/holding_state.dart';
-import '../../core/constants/app_size.dart';
-import '../../widget/button/primary_button.dart';
-import '../../widget/field/app_label_field.dart';
-import '../../widget/field/mini_input_field.dart';
-import '../../widget/field/portfolio_select_field.dart';
-import '../../widget/text/app_text.dart';
+import '../../../../bloc/holding/holding_bloc.dart';
+import '../../../../bloc/holding/holding_event.dart';
+import '../../../../bloc/holding/holding_state.dart';
+import '../../../../core/constants/app_size.dart';
+import '../../../../widget/button/primary_button.dart';
+import '../../../../widget/field/app_label_field.dart';
+import '../../../../widget/field/mini_input_field.dart';
+import '../../../../widget/field/portfolio_select_field.dart';
+import '../../../../widget/text/app_text.dart';
 import 'widget/holding_cost_summary.dart';
 
 class AddHoldingView extends StatefulWidget {

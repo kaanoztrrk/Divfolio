@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_size.dart';
-import '../../../../widget/text/app_text.dart';
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_size.dart';
+import '../../../../../widget/text/app_text.dart';
 
 class DividendHistoryItemTile extends StatelessWidget {
   final String date;

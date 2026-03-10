@@ -1,3 +1,4 @@
+import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -5,24 +6,39 @@ import '../../core/constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/custom/text_theme.dart';
 import '../../data/model/dividend_model.dart';
+import '../../data/model/holding_model.dart';
 import '../text/app_text.dart';
 
 class DividendTile extends StatelessWidget {
-  const DividendTile({super.key, required this.dividend});
+  const DividendTile({super.key, required this.dividend, this.holding});
+
   final DividendModel dividend;
+  final HoldingModel? holding;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+    final companyId = holding?.companyId ?? '???';
+    final companyName = holding?.companyName ?? 'Unknown';
+    final shares = holding?.shares ?? dividend.sharesAtPayDate;
+    final symbol = _symbol(dividend.currencyCode);
+
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.dividendDetail);
+        Navigator.pushNamed(
+          context,
+          AppRoutes.dividendDetail,
+          arguments: {'dividend': dividend, 'holding': holding},
+        );
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: AppSizes.spaceSM),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.surfaceDark : AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.border,
+          ),
         ),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
@@ -33,43 +49,54 @@ class DividendTile extends StatelessWidget {
             height: 44,
             width: 44,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: isDark
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppSizes.radiusMD),
             ),
             alignment: Alignment.center,
             child: AppText(
-              text: "AAPL",
+              text: companyId.length > 4
+                  ? companyId.substring(0, 4)
+                  : companyId,
               type: AppTextType.labelSmall,
               color: AppColors.primary,
               fontWeight: FontWeight.w800,
             ),
           ),
           title: AppText(
-            text: "Apple Inc",
+            text: companyName,
             type: AppTextType.titleMedium,
-            color: AppColors.textPrimary,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
           subtitle: AppText(
-            text: "50 Shares",
+            text:
+                '${shares.toStringAsFixed(0)} Shares · ${_formatDate(dividend.payDate)}',
             type: AppTextType.labelMedium,
-            color: AppColors.textSecondary.withValues(alpha: 0.7),
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondary,
           ),
           trailing: RichText(
             textAlign: TextAlign.end,
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "\$45.67\n",
+                  text: '$symbol${dividend.netAmount.toStringAsFixed(2)}\n',
                   style: AppTextTheme.textTheme.titleMedium!.copyWith(
-                    color: AppColors.textPrimary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 TextSpan(
-                  text: "Received",
+                  text: 'Received',
                   style: AppTextTheme.textTheme.labelSmall!.copyWith(
-                    color: AppColors.textSecondary,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -78,5 +105,22 @@ class DividendTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _symbol(String code) {
+    switch (code.toUpperCase()) {
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'TRY':
+        return '₺';
+      default:
+        return code;
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}.${date.month}.${date.year}';
   }
 }

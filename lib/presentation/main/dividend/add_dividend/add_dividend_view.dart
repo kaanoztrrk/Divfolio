@@ -11,15 +11,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../bloc/dividend_bloc/dividend_bloc.dart';
-import '../../../bloc/dividend_bloc/dividend_event.dart';
-import '../../../bloc/holding/holding_bloc.dart';
-import '../../../bloc/holding/holding_event.dart';
-import '../../../bloc/holding/holding_state.dart';
-import '../../../bloc/portfolio_bloc/portfolio_bloc.dart';
-import '../../../bloc/portfolio_bloc/portfolio_state.dart';
-import '../../../data/model/holding_model.dart';
-import '../../../widget/bottom_sheet/select_holding_sheet.dart';
+import '../../../../bloc/dividend_bloc/dividend_bloc.dart';
+import '../../../../bloc/dividend_bloc/dividend_event.dart';
+import '../../../../bloc/holding/holding_bloc.dart';
+import '../../../../bloc/holding/holding_event.dart';
+import '../../../../bloc/holding/holding_state.dart';
+import '../../../../bloc/portfolio_bloc/portfolio_bloc.dart';
+import '../../../../bloc/portfolio_bloc/portfolio_state.dart';
+import '../../../../core/utils/money_extension.dart';
+import '../../../../data/model/holding_model.dart';
+import '../../../../widget/bottom_sheet/select_holding_sheet.dart';
 
 class AddDividendView extends StatefulWidget {
   const AddDividendView({super.key});
@@ -163,7 +164,7 @@ class _AddDividendViewState extends State<AddDividendView> {
     return BlocBuilder<PortfolioBloc, PortfolioState>(
       builder: (context, portfolioState) {
         final portfolio = portfolioState.selectedPortfolio;
-        final currencySymbol = _currencySymbol(
+        final currencySymbol = MoneyX.symbolOf(
           portfolio?.baseCurrencyCode ?? 'USD',
         );
 
@@ -386,19 +387,6 @@ class _AddDividendViewState extends State<AddDividendView> {
         );
       },
     );
-  }
-
-  String _currencySymbol(String code) {
-    switch (code.toUpperCase()) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '€';
-      case 'TRY':
-        return '₺';
-      default:
-        return code;
-    }
   }
 }
 

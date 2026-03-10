@@ -31,7 +31,7 @@ extension MoneyX on num {
   /// Sembol + formatlanmış sayı.
   /// Sembol dışarıdan verilir, portfolio.baseCurrencyCode'dan türetilir.
   String moneyWithSymbol(BuildContext context, String currencyCode) {
-    final symbol = _symbolOf(currencyCode);
+    final symbol = symbolOf(currencyCode);
     return '$symbol${formatAmount(context)}';
   }
 
@@ -56,7 +56,7 @@ extension MoneyX on num {
     }
   }
 
-  static String _symbolOf(String code) {
+  static String symbolOf(String code) {
     switch (code.toUpperCase()) {
       case 'USD':
         return '\$';
