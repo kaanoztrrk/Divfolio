@@ -15,6 +15,7 @@ import '../../core/constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/utils/empty_state.dart';
 import '../../widget/tile/dividend_history_tile.dart';
+import 'widget/mini_status.dart';
 
 class HoldingDetailView extends StatelessWidget {
   const HoldingDetailView({super.key, required this.holding});
@@ -42,6 +43,18 @@ class HoldingDetailView extends StatelessWidget {
         title: AppText(
           text: holding.companyName,
           type: AppTextType.titleMedium,
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.spaceMD,
+          vertical: AppSizes.spaceSM,
+        ),
+        child: PrimaryButton(
+          label: "Add Dividend",
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.addDividend);
+          },
         ),
       ),
       body: BlocBuilder<DividendBloc, DividendState>(
@@ -110,7 +123,7 @@ class HoldingDetailView extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _MiniStat(
+                            MiniStat(
                               value: '${yieldOnCost.toStringAsFixed(2)}%',
                               label: "YIELD ON COST",
                             ),
@@ -121,7 +134,7 @@ class HoldingDetailView extends StatelessWidget {
                                   ? AppColors.borderDark
                                   : AppColors.border,
                             ),
-                            _MiniStat(
+                            MiniStat(
                               value: holding.shares.toStringAsFixed(0),
                               label: "TOTAL SHARES",
                             ),
@@ -179,21 +192,6 @@ class HoldingDetailView extends StatelessWidget {
                             subtitle:
                                 "This holding hasn't received any dividends.",
                           ),
-                          const SizedBox(height: AppSizes.spaceMD),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSizes.spaceMD,
-                            ),
-                            child: PrimaryButton(
-                              label: "Add Dividend",
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.addHolding,
-                                );
-                              },
-                            ),
-                          ),
                         ],
                       )
                     : ListView.separated(
@@ -237,34 +235,5 @@ class HoldingDetailView extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
-  }
-}
-
-class _MiniStat extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _MiniStat({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = DeviceUtils.isDarkMode(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AppText(
-          text: value,
-          type: AppTextType.headlineSmall,
-          fontWeight: FontWeight.w700,
-        ),
-        const SizedBox(height: AppSizes.spaceXS),
-        AppText(
-          text: label,
-          type: AppTextType.labelSmall,
-          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-          fontWeight: FontWeight.w700,
-        ),
-      ],
-    );
   }
 }

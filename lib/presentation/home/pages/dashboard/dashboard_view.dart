@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../bloc/dividend_bloc/dividend_bloc.dart';
-import '../../../../bloc/dividend_bloc/dividend_event.dart';
 import '../../../../bloc/dividend_bloc/dividend_state.dart';
 import '../../../../bloc/holding_bloc/holding_bloc.dart';
 import '../../../../bloc/holding_bloc/holding_event.dart';
@@ -17,7 +16,7 @@ import '../../../../bloc/portfolio_bloc/portfolio_state.dart';
 import '../../../../core/utils/device_utility.dart';
 import '../../../../core/utils/empty_state.dart';
 import '../../../../widget/tile/holding_tile.dart';
-import 'widget/portfolio_stats_row.dart';
+import '../../../main/pages/dashboard/widget/portfolio_stats_row.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -33,24 +32,19 @@ class DashboardView extends StatelessWidget {
           child: BlocBuilder<PortfolioBloc, PortfolioState>(
             builder: (context, portfolioState) {
               final portfolio = portfolioState.selectedPortfolio;
-
               final baseCurrency = portfolio?.baseCurrencyCode ?? 'USD';
               final currencySymbol = MoneyX.symbolOf(baseCurrency);
 
+              // HoldingBloc'u tetikle
               final pid = portfolioState.selectedPortfolioId;
               if (pid != null) {
                 context.read<HoldingBloc>().add(LoadHoldings(pid));
-                context.read<DividendBloc>().add(
-                  LoadDividendSummary(
-                    portfolioId: pid,
-                    year: DateTime.now().year,
-                  ),
-                );
               }
 
               return BlocBuilder<DividendBloc, DividendState>(
                 builder: (context, dividendState) {
                   final items = dividendState.dividends;
+                  final recent = items.take(5).toList();
 
                   // Seçili portfolio'nun para birimine göre toplam
                   final totalNet =
@@ -65,6 +59,9 @@ class DashboardView extends StatelessWidget {
                   return BlocBuilder<HoldingBloc, HoldingState>(
                     builder: (context, holdingState) {
                       final holdingCount = holdingState.holdings.length;
+                      final holdingMap = {
+                        for (final h in holdingState.holdings) h.id: h,
+                      };
 
                       return Column(
                         children: [
@@ -126,14 +123,24 @@ class DashboardView extends StatelessWidget {
                           Expanded(
                             child: Builder(
                               builder: (context) {
-                                if (holdingState.loading &&
-                                    holdingState.holdings.isEmpty) {
+                                if (dividendState.loading && items.isEmpty) {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
                                 }
 
-                                if (holdingState.holdings.isEmpty) {
+                                if (dividendState.error != null &&
+                                    items.isEmpty) {
+                                  return Center(
+                                    child: AppText(
+                                      text: dividendState.error!,
+                                      type: AppTextType.bodyMedium,
+                                      color: AppColors.error,
+                                    ),
+                                  );
+                                }
+
+                                if (items.isEmpty) {
                                   return Center(
                                     child: ConstrainedBox(
                                       constraints: const BoxConstraints(
@@ -150,19 +157,12 @@ class DashboardView extends StatelessWidget {
                                 }
 
                                 return ListView.builder(
-                                  itemCount: holdingState.holdings.length,
+                                  itemCount: recent.length,
                                   itemBuilder: (context, index) {
+                                    final dividend = recent[index];
                                     final holding =
-                                        holdingState.holdings[index];
-                                    final income =
-                                        dividendState
-                                            .byCompanyByCurrency[holding
-                                            .id]?[baseCurrency] ??
-                                        0.0;
-                                    return HoldingTile(
-                                      holding: holding,
-                                      thisYearIncome: income,
-                                    );
+                                        holdingMap[dividend.holdingId];
+                                    return HoldingTile(holding: holding!);
                                   },
                                 );
                               },

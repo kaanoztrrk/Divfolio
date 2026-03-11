@@ -13,10 +13,13 @@ import '../../widget/text/app_text.dart';
 import 'create_portfolio_sheet.dart';
 
 class PortfolioBottomSheet extends StatelessWidget {
-  /// Parent widget’a seçim callback’i
+  const PortfolioBottomSheet({
+    super.key,
+    required this.onSelect,
+    this.currentSelectedId,
+  });
+  final String? currentSelectedId;
   final void Function(String selectedId) onSelect;
-
-  const PortfolioBottomSheet({super.key, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +62,9 @@ class PortfolioBottomSheet extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     final item = state.portfolios[index];
-                    final isSelected = item.id == state.selectedPortfolioId;
+                    final isSelected =
+                        item.id ==
+                        currentSelectedId; // state.selectedPortfolioId yerine
 
                     return ListTile(
                       contentPadding: EdgeInsets.zero,

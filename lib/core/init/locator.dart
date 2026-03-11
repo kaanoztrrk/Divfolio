@@ -1,5 +1,5 @@
 import 'package:divfolio/bloc/dividend_bloc/dividend_bloc.dart';
-import 'package:divfolio/bloc/holding/holding_bloc.dart';
+import 'package:divfolio/bloc/holding_bloc/holding_bloc.dart';
 import 'package:divfolio/bloc/portfolio_bloc/portfolio_bloc.dart';
 import 'package:divfolio/cubit/date_format_cubit.dart';
 import 'package:divfolio/cubit/decimal_format_cubit.dart';

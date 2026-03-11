@@ -1,6 +1,6 @@
 import 'package:divfolio/bloc/dividend_bloc/dividend_event.dart';
-import 'package:divfolio/bloc/holding/holding_bloc.dart';
-import 'package:divfolio/bloc/holding/holding_event.dart';
+import 'package:divfolio/bloc/holding_bloc/holding_bloc.dart';
+import 'package:divfolio/bloc/holding_bloc/holding_event.dart';
 import 'package:divfolio/core/constants/app_colors.dart';
 import 'package:divfolio/widget/bottom_sheet/create_dividend_sheet.dart';
 import 'package:flutter/material.dart';

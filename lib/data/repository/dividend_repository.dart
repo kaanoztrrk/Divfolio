@@ -27,6 +27,8 @@ abstract class DividendRepository {
     int? year,
   });
   Future<List<DividendModel>> getAllDividends();
+
+  Stream<void> watchChanges();
 }
 
 /// HiveManager (dynamic box) ile çalışan implementasyon
@@ -148,5 +150,10 @@ class HiveDividendRepository implements DividendRepository {
     final list = _hive.getAll<DividendModel>(_box)
       ..sort((a, b) => b.payDate.compareTo(a.payDate));
     return list;
+  }
+
+  @override
+  Stream<void> watchChanges() {
+    return _hive.watch(_box).map((_) => null);
   }
 }

@@ -1,4 +1,4 @@
-import 'package:divfolio/bloc/holding/holding_bloc.dart';
+import 'package:divfolio/bloc/holding_bloc/holding_bloc.dart';
 import 'package:divfolio/bloc/portfolio_bloc/portfolio_event.dart';
 import 'package:divfolio/presentation/add_dividend/add_dividend_view.dart';
 import 'package:divfolio/presentation/add_holding/add_holding_view.dart';
@@ -97,6 +97,20 @@ class AppRouter {
               BlocProvider.value(value: getIt<DividendBloc>()),
             ],
             child: AddHoldingView(),
+          ),
+        );
+      case AppRoutes.editHolding:
+        final holding = settings.arguments as HoldingModel;
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: getIt<PortfolioBloc>()..add(LoadPortfolios()),
+              ),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
+              BlocProvider.value(value: getIt<DividendBloc>()),
+            ],
+            child: AddHoldingView(editingHolding: holding),
           ),
         );
 

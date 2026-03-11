@@ -10,6 +10,7 @@ abstract class HoldingRepository {
   Future<HoldingModel> updateHolding(HoldingModel holding);
   Future<void> deleteHolding(String holdingId);
   Future<List<HoldingModel>> getAllHoldings();
+  Stream<void> watchChanges();
 }
 
 class HiveHoldingRepository implements HoldingRepository {
@@ -79,5 +80,10 @@ class HiveHoldingRepository implements HoldingRepository {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return list;
+  }
+
+  @override
+  Stream<void> watchChanges() {
+    return _hive.watch(_box).map((_) => null);
   }
 }

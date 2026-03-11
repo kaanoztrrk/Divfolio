@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../bloc/holding/holding_bloc.dart';
-import '../../../../bloc/holding/holding_state.dart';
+import '../../../../bloc/holding_bloc/holding_bloc.dart';
+import '../../../../bloc/holding_bloc/holding_state.dart';
 import '../../../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../../../bloc/portfolio_bloc/portfolio_state.dart';
 import '../../../../core/constants/app_colors.dart';

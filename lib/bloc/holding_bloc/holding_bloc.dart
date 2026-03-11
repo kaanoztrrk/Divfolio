@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/model/holding_model.dart';
 import '../../data/repository/dividend_repository.dart';
@@ -10,6 +12,7 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
   final HoldingRepository _repository;
   final DividendRepository _dividendRepository;
   final LogService _log = LogService.instance;
+  late final StreamSubscription<void> _watchSub;
 
   HoldingBloc({
     required HoldingRepository holdingRepository,
@@ -23,6 +26,14 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
     on<DeleteHolding>(_onDeleteHolding);
     on<ResetHoldingForm>(_onResetHoldingForm);
     on<LoadAllHoldings>(_onLoadAllHoldings);
+    _watchSub = _repository.watchChanges().listen((_) {
+      final pid = state.selectedPortfolioId;
+      if (pid != null) {
+        add(LoadHoldings(pid));
+      } else {
+        add(const LoadAllHoldings());
+      }
+    });
   }
 
   Future<void> _onLoadHoldings(
@@ -213,5 +224,11 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
       _log.error("❌ LoadAllHoldings: $e", tag: 'HOLDING', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
     }
+  }
+
+  @override
+  Future<void> close() {
+    _watchSub.cancel();
+    return super.close();
   }
 }

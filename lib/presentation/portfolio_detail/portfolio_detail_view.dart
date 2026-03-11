@@ -1,25 +1,32 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:divfolio/core/utils/empty_state.dart';
+import '../../core/routes/app_routes.dart';
+import '../../widget/button/slidable_button.dart';
+import '../../widget/dialog/confirm_dialog.dart';
+import '../main/pages/dashboard/widget/portfolio_stats_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/dividend_bloc/dividend_bloc.dart';
 import '../../bloc/dividend_bloc/dividend_event.dart';
 import '../../bloc/dividend_bloc/dividend_state.dart';
-import '../../bloc/holding/holding_bloc.dart';
-import '../../bloc/holding/holding_event.dart';
-import '../../bloc/holding/holding_state.dart';
+import '../../bloc/holding_bloc/holding_bloc.dart';
+import '../../bloc/holding_bloc/holding_event.dart';
+import '../../bloc/holding_bloc/holding_state.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_images.dart';
 import '../../core/constants/app_size.dart';
+import '../../core/utils/money_extension.dart';
 import '../../data/model/portfolio_model.dart';
 import '../../widget/button/primary_button.dart';
-import '../../widget/chip/app_chip.dart';
 import '../../widget/text/app_text.dart';
-import '../main/pages/dashboard/widget/portfolio_stats_row.dart';
 import '../add_dividend/add_dividend_view.dart';
 import 'widget/dividend_summary_card.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+
+import 'widget/header_widget.dart';
 
 class PortfolioDetailView extends StatelessWidget {
   const PortfolioDetailView({super.key, required this.portfolio});
@@ -78,15 +85,13 @@ class PortfolioDetailView extends StatelessWidget {
           return BlocBuilder<DividendBloc, DividendState>(
             builder: (context, dState) {
               final currencyCode = portfolio.baseCurrencyCode;
-              final currencySymbol = _symbolOf(currencyCode);
+              final currencySymbol = MoneyX.symbolOf(currencyCode);
 
-              // Toplam maliyet → Header'da gösterilecek
               final totalCost = hState.holdings.fold<double>(
                 0,
                 (t, h) => t + ((h.avgCost ?? 0) * h.shares),
               );
 
-              // Yıllık gelir → Summary Card'da gösterilecek
               final annualIncome = dState.totalsByCurrency[currencyCode] ?? 0.0;
 
               // Yield on Cost
@@ -104,8 +109,7 @@ class PortfolioDetailView extends StatelessWidget {
                 children: [
                   const SizedBox(height: AppSizes.spaceXXL),
 
-                  // Header → toplam maliyet gösteriyor
-                  _HeaderCard(
+                  HeaderCard(
                     portfolio: portfolio,
                     isDark: isDark,
                     totalCost: totalCost,
@@ -126,7 +130,6 @@ class PortfolioDetailView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.spaceXXL),
 
-                  // Summary Card → gelir detayları
                   DividendSummaryCard(
                     isDark: isDark,
                     yearToDate:
@@ -144,7 +147,6 @@ class PortfolioDetailView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.spaceMD),
 
-                  // Holdings listesi → her holding'in bu yılki geliri
                   ...hState.holdings.map((h) {
                     final holdingIncome =
                         dState.byCompanyByCurrency[h.id]?[currencyCode] ?? 0.0;
@@ -152,58 +154,25 @@ class PortfolioDetailView extends StatelessWidget {
                     return Slidable(
                       key: ValueKey(h.id),
                       endActionPane: ActionPane(
-                        motion: const DrawerMotion(),
-                        extentRatio: 0.25,
+                        motion: ScrollMotion(),
+                        extentRatio: 0.80,
                         children: [
-                          SlidableAction(
-                            onPressed: (_) {
-                              // Silme onay dialog'u
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const AppText(
-                                    text: 'Delete Holding',
-                                    type: AppTextType.titleMedium,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  content: AppText(
-                                    text:
-                                        '${h.companyName} and all its dividends will be deleted.',
-                                    type: AppTextType.bodyMedium,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      child: const AppText(
-                                        text: 'Cancel',
-                                        type: AppTextType.bodyMedium,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        context.read<HoldingBloc>().add(
-                                          DeleteHolding(h.id),
-                                        );
-                                        Navigator.pop(ctx);
-                                      },
-                                      child: const AppText(
-                                        text: 'Delete',
-                                        type: AppTextType.bodyMedium,
-                                        color: AppColors.error,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          DeleteSlidableAction(
+                            confirmTitle: 'Delete Holding',
+                            confirmMessage:
+                                '${h.companyName} and all its dividends will be deleted.',
+                            onConfirm: () => context.read<HoldingBloc>().add(
+                              DeleteHolding(h.id),
+                            ),
+                          ),
+                          EditSlidableAction(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.editHolding,
+                                arguments: h,
                               );
                             },
-                            backgroundColor: AppColors.error,
-                            foregroundColor: Colors.white,
-                            icon: Icons.delete_outline_rounded,
-                            label: 'Delete',
-                            borderRadius: BorderRadius.circular(
-                              AppSizes.radiusMD,
-                            ),
                           ),
                         ],
                       ),
@@ -241,7 +210,9 @@ class PortfolioDetailView extends StatelessWidget {
                       ),
                     );
                   }),
+
                   SizedBox(height: AppSizes.spaceXXL),
+
                   PrimaryButton(
                     label: "Add Dividend",
                     onPressed: () => Navigator.push(
@@ -257,75 +228,6 @@ class PortfolioDetailView extends StatelessWidget {
             },
           );
         },
-      ),
-    );
-  }
-
-  String _symbolOf(String code) {
-    switch (code.toUpperCase()) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '€';
-      case 'TRY':
-        return '₺';
-      default:
-        return code;
-    }
-  }
-}
-
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({
-    required this.portfolio,
-    required this.isDark,
-    required this.totalCost,
-    required this.currencySymbol,
-    required this.yieldOnCost,
-  });
-
-  final PortfolioModel portfolio;
-  final bool isDark;
-  final double totalCost; // totalIncome → totalCost oldu
-  final String currencySymbol;
-  final double yieldOnCost;
-
-  @override
-  Widget build(BuildContext context) {
-    final yieldLabel =
-        '${yieldOnCost > 0 ? '+' : ''}${yieldOnCost.toStringAsFixed(2)}%';
-
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.spaceXL),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.border,
-        ),
-      ),
-      child: Column(
-        children: [
-          AppChip(
-            label: portfolio.baseCurrencyCode.toUpperCase(),
-            color: isDark ? AppColors.background : AppColors.overlay,
-          ),
-          const SizedBox(height: AppSizes.spaceMD),
-          AppText(
-            text: "TOTAL COST",
-            type: AppTextType.labelMedium,
-            color: AppColors.textSecondary,
-          ),
-          const SizedBox(height: AppSizes.spaceXS),
-          AppText(
-            text: '$currencySymbol${totalCost.toStringAsFixed(2)}',
-            type: AppTextType.headlineLarge,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSizes.spaceSM),
-          AppChip(label: yieldLabel, signedValue: yieldOnCost),
-        ],
       ),
     );
   }

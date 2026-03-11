@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repository/dividend_repository.dart';
 import '../../service/log_service.dart';
@@ -7,6 +9,7 @@ import 'dividend_state.dart';
 class DividendBloc extends Bloc<DividendEvent, DividendState> {
   final DividendRepository _repository;
   final LogService _log = LogService.instance;
+  late final StreamSubscription<void> _watchSub;
 
   DividendBloc(this._repository) : super(const DividendState()) {
     on<LoadDividends>(_onLoadDividends);
@@ -16,6 +19,14 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     on<LoadDividendSummary>(_onLoadDividendSummary);
     on<ResetDividendState>((_, emit) => emit(const DividendState()));
     on<LoadAllDividends>(_onLoadAllDividends);
+    _watchSub = _repository.watchChanges().listen((_) {
+      final pid = state.selectedPortfolioId;
+      if (pid != null) {
+        add(LoadDividends(pid));
+      } else {
+        add(const LoadAllDividends());
+      }
+    });
   }
 
   Future<void> _onLoadAllDividends(
@@ -250,5 +261,11 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
       map[cc] = (map[cc] ?? 0) + d.netAmount;
     }
     return map;
+  }
+
+  @override
+  Future<void> close() {
+    _watchSub.cancel();
+    return super.close();
   }
 }

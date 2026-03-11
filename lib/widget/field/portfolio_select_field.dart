@@ -59,8 +59,9 @@ class PortfolioSelectField extends StatelessWidget {
         return BlocProvider.value(
           value: bloc,
           child: PortfolioBottomSheet(
+            currentSelectedId: currentSelectedId,
+
             onSelect: (selectedId) {
-              // Sheet içinden callback ile seçim bildiriliyor
               Navigator.pop(context, selectedId);
             },
           ),

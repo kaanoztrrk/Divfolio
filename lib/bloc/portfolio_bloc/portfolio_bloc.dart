@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/model/portfolio_model.dart';
@@ -14,6 +16,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   final DividendRepository _dividendRepository;
   final LogService _log = LogService.instance;
   final _uuid = const Uuid();
+  late final StreamSubscription<void> _watchSub;
 
   PortfolioBloc({
     required PortfolioRepository portfolioRepository,
@@ -28,6 +31,9 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     on<UpsertPortfolio>(_onUpsertPortfolio);
     on<DeletePortfolio>(_onDeletePortfolio);
     on<ResetPortfolioState>((_, emit) => emit(const PortfolioState()));
+    _watchSub = _repository.watchChanges().listen((_) {
+      add(LoadPortfolios());
+    });
   }
 
   Future<void> _onLoadPortfolios(

@@ -13,6 +13,8 @@ abstract class PortfolioRepository {
   Future<void> deletePortfolio(String portfolioId);
 
   Future<void> ensureDefaultPortfolio();
+
+  Stream<void> watchChanges();
 }
 
 /// HiveManager (dynamic box) ile çalışan implementasyon
@@ -79,5 +81,10 @@ class HivePortfolioRepository implements PortfolioRepository {
         notes: null,
       ),
     );
+  }
+
+  @override
+  Stream<void> watchChanges() {
+    return _hive.watch(_box).map((_) => null);
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/holding/holding_bloc.dart';
-import '../../bloc/holding/holding_state.dart';
+import '../../bloc/holding_bloc/holding_bloc.dart';
+import '../../bloc/holding_bloc/holding_state.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_size.dart';
 import '../../data/model/holding_model.dart';

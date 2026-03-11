@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/holding/holding_bloc.dart';
-import '../../bloc/holding/holding_event.dart';
-import '../../bloc/holding/holding_state.dart';
+import '../../bloc/holding_bloc/holding_bloc.dart';
+import '../../bloc/holding_bloc/holding_event.dart';
+import '../../bloc/holding_bloc/holding_state.dart';
+import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_size.dart';
+import '../../data/model/holding_model.dart';
 import '../../widget/button/primary_button.dart';
 import '../../widget/field/app_label_field.dart';
 import '../../widget/field/mini_input_field.dart';
@@ -13,7 +15,8 @@ import '../../widget/text/app_text.dart';
 import 'widget/holding_cost_summary.dart';
 
 class AddHoldingView extends StatefulWidget {
-  const AddHoldingView({super.key});
+  const AddHoldingView({super.key, this.editingHolding});
+  final HoldingModel? editingHolding; // null → create, dolu → edit
 
   @override
   State<AddHoldingView> createState() => _AddHoldingViewState();
@@ -29,9 +32,29 @@ class _AddHoldingViewState extends State<AddHoldingView> {
     _sharesCtrl = TextEditingController();
     _avgCostCtrl = TextEditingController();
 
-    // Widget'ı rebuild etmek için listener ekle
     _sharesCtrl.addListener(() => setState(() {}));
     _avgCostCtrl.addListener(() => setState(() {}));
+
+    // Edit modunda field'ları doldur
+    final h = widget.editingHolding;
+    if (h != null) {
+      _sharesCtrl.text = h.shares.toString();
+      _avgCostCtrl.text = h.avgCost?.toString() ?? '';
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<HoldingBloc>().add(
+          UpdateHoldingForm(
+            editingHolding: h,
+            companyId: h.companyId,
+            companyName: h.companyName,
+            shares: h.shares,
+            avgCost: h.avgCost,
+            currencyCode: h.currencyCode,
+            portfolioId: h.portfolioId,
+          ),
+        );
+      });
+    }
   }
 
   @override
@@ -48,8 +71,10 @@ class _AddHoldingViewState extends State<AddHoldingView> {
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: const AppText(
-              text: "Add Holdings",
+            title: AppText(
+              text: widget.editingHolding != null
+                  ? "Edit Holding"
+                  : "Add Holdings",
               type: AppTextType.titleMedium,
             ),
           ),
@@ -62,8 +87,20 @@ class _AddHoldingViewState extends State<AddHoldingView> {
                 AppSizes.spaceMD,
               ),
               child: PrimaryButton(
-                label: "Add to Portfolio",
+                label: widget.editingHolding != null
+                    ? "Save Changes"
+                    : "Add to Portfolio",
                 onPressed: () {
+                  final error = _validate(state);
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(error),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                    return;
+                  }
                   context.read<HoldingBloc>().add(const SubmitHolding());
                   Navigator.pop(context);
                 },
@@ -85,17 +122,21 @@ class _AddHoldingViewState extends State<AddHoldingView> {
                     hintText: "AAPL / MSFT ...",
                     leadingIcon: Icons.tag,
                     toUpperCase: true,
+                    maxLength: 5, // EKLE
+                    initialValue: widget.editingHolding?.companyId,
+                    readOnly: widget.editingHolding != null,
                     onChanged: (v) {
                       context.read<HoldingBloc>().add(
                         UpdateHoldingForm(companyId: v),
                       );
                     },
                   ),
-                  const SizedBox(height: AppSizes.spaceMD),
                   AppLabeledField(
                     title: "Company Name",
                     hintText: "Apple Inc ...",
                     leadingIcon: Icons.business,
+                    initialValue: widget.editingHolding?.companyName,
+                    readOnly: widget.editingHolding != null,
                     onChanged: (v) {
                       context.read<HoldingBloc>().add(
                         UpdateHoldingForm(companyName: v),
@@ -162,5 +203,20 @@ class _AddHoldingViewState extends State<AddHoldingView> {
         );
       },
     );
+  }
+
+  String? _validate(HoldingState state) {
+    final companyId = state.companyId.trim();
+    final companyName = state.companyName.trim();
+
+    if (companyId.isEmpty) return 'Company ID is required.';
+    if (companyId.length > 5) return 'Company ID must be max 5 characters.';
+    if (companyName.isEmpty) return 'Company Name is required.';
+    if (state.shares <= 0) return 'Shares must be greater than 0.';
+    if (state.avgCost != null && state.avgCost! < 0) {
+      return 'Average cost cannot be negative.';
+    }
+    if (state.selectedPortfolioId == null) return 'Please select a portfolio.';
+    return null;
   }
 }

@@ -14,13 +14,8 @@
 4- Dividend ekleme sayfasında Calculate seçeneğinde fieldları düzelt. 
 5- Dividend ekleme sayfasında reset kısmını kaldır
 
-//* - Holdings
-1- Holding düzenleme ekle
-2- Holding ekleme sayfasında portfolio seçim bottom sheetinin tick sistemini güncelle
-3- Holding ekleme sayfasında Company ID en fazla 5 karakter olabilir. Hepsi büyük olmak zorunda bunu UI da da göster
 
 //* - GENERAL
-1- Dashboard listte Dividend değil holding listesi gözükecek
 2- Portfolio sınırlama getir (1 tane olabilir. gerisi abonelik usulu)
 3- Decimal Format tüm uygulamaya giydir
 4- Date format tüm uygulamaya giydir

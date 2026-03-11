@@ -9,4 +9,5 @@ class AppRoutes {
   static const portfolioDetails = '/portfolio_details';
   static const addDividend = '/add_dividend';
   static const addHolding = '/add_holding';
+  static const editHolding = '/edit_holding';
 }

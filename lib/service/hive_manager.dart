@@ -88,4 +88,8 @@ class HiveManager {
     await Hive.close();
     _initialized = false;
   }
+
+  Stream<BoxEvent> watch(String boxName) {
+    return box(boxName).watch();
+  }
 }
