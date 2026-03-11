@@ -1,0 +1,307 @@
+import 'package:divfolio/core/enum/date_formatter.dart';
+import 'package:divfolio/core/enum/decimal_format.dart';
+import 'package:divfolio/cubit/decimal_format_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:divfolio/widget/text/app_text.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_size.dart';
+import '../../../../core/utils/device_utility.dart';
+import '../../../../cubit/date_format_cubit.dart';
+import '../../../../cubit/theme_cubit.dart';
+import '../../../../widget/bottom_sheet/date_format_sheet.dart';
+import '../../../../widget/bottom_sheet/decimal_format_sheet.dart';
+import '../../../../widget/bottom_sheet/theme_sheet.dart';
+
+// CurrencyCubit import KALDIRILDI
+// CurrencyBottomSheet import KALDIRILDI
+
+class SettingsView extends StatelessWidget {
+  const SettingsView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+
+    return Scaffold(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.spaceXL,
+            vertical: AppSizes.spaceLG,
+          ),
+          children: [
+            _SectionTitle('Interface', isDark),
+            const SizedBox(height: AppSizes.spaceMD),
+            _SettingsCard(
+              isDark: isDark,
+              children: [
+                BlocBuilder<ThemeCubit, ThemeState>(
+                  builder: (context, state) {
+                    return _SettingsTile(
+                      isDark: isDark,
+                      icon: Icons.dark_mode_rounded,
+                      title: 'Appearance',
+                      value: state.selected.name,
+                      onTap: () async {
+                        final cubit = context.read<ThemeCubit>();
+                        await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppSizes.radiusLG),
+                            ),
+                          ),
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: const ThemeBottomSheet(),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSizes.spaceXL),
+            _SectionTitle('Preferences', isDark),
+            const SizedBox(height: AppSizes.spaceMD),
+            _SettingsCard(
+              isDark: isDark,
+              children: [
+                BlocBuilder<DecimalFormatCubit, DecimalFormatState>(
+                  builder: (context, state) {
+                    return _SettingsTile(
+                      isDark: isDark,
+                      icon: Icons.exposure_rounded,
+                      title: 'Decimal Format',
+                      value: state.selected.label,
+                      onTap: () async {
+                        final cubit = context.read<DecimalFormatCubit>();
+                        await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppSizes.radiusLG),
+                            ),
+                          ),
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: const DecimalFormatBottomSheet(),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const _SettingsDivider(),
+                BlocBuilder<DateFormatCubit, DateFormatState>(
+                  builder: (context, state) {
+                    return _SettingsTile(
+                      isDark: isDark,
+                      icon: Icons.calendar_month_rounded,
+                      title: 'Date Format',
+                      value: state.selected.previewNow(),
+                      onTap: () async {
+                        final cubit = context.read<DateFormatCubit>();
+                        await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: isDark
+                              ? AppColors.surfaceDark
+                              : AppColors.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppSizes.radiusLG),
+                            ),
+                          ),
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: const DateFormatBottomSheet(),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSizes.spaceXL),
+            _SectionTitle('Data Management', isDark),
+            const SizedBox(height: AppSizes.spaceMD),
+            _SettingsCard(
+              isDark: isDark,
+              children: [
+                _SettingsTile(
+                  isDark: isDark,
+                  icon: Icons.document_scanner,
+                  title: 'Export Data to CSV',
+                  value: 'System',
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSizes.spaceXL),
+            _SectionTitle('About', isDark),
+            const SizedBox(height: AppSizes.spaceMD),
+            _SettingsCard(
+              isDark: isDark,
+              children: [
+                _SettingsTile(
+                  isDark: isDark,
+                  icon: Icons.shield_outlined,
+                  title: 'Privacy Policy',
+                  value: '',
+                ),
+                _SettingsDivider(),
+                _SettingsTile(
+                  isDark: isDark,
+                  icon: Icons.shield_outlined,
+                  title: 'Terms of Service',
+                  value: '',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Alt widget'lar aynı kalıyor
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text, this.isDark);
+  final String text;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppText(
+      text: text,
+      type: AppTextType.titleSmall,
+      fontWeight: FontWeight.w600,
+      color: isDark
+          ? AppColors.textSecondaryDark.withValues(alpha: 0.75)
+          : AppColors.textSecondary.withValues(alpha: 0.75),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({required this.children, required this.isDark});
+  final List<Widget> children;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.border,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        child: Column(children: children),
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.value,
+    this.onTap,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+  final VoidCallback? onTap;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconBg = AppColors.primary.withValues(alpha: 0.12);
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.spaceMD,
+          vertical: AppSizes.spaceSM,
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: AppColors.primary),
+            ),
+            const SizedBox(width: AppSizes.spaceMD),
+            Expanded(
+              child: AppText(
+                text: title,
+                type: AppTextType.titleSmall,
+                color: isDark
+                    ? AppColors.textPrimaryDark
+                    : AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            AppText(
+              text: value,
+              type: AppTextType.bodySmall,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
+            ),
+            const SizedBox(width: AppSizes.spaceXS),
+            Icon(
+              Icons.keyboard_arrow_right_rounded,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsDivider extends StatelessWidget {
+  const _SettingsDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = DeviceUtils.isDarkMode(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Divider(
+        height: 1,
+        thickness: 1,
+        color: isDark ? AppColors.dividerDark : AppColors.divider,
+      ),
+    );
+  }
+}

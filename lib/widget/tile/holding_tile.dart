@@ -6,32 +6,30 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/custom/text_theme.dart';
-import '../../data/model/dividend_model.dart';
 import '../../data/model/holding_model.dart';
 import '../text/app_text.dart';
 
-class DividendTile extends StatelessWidget {
-  const DividendTile({super.key, required this.dividend, this.holding});
+class HoldingTile extends StatelessWidget {
+  const HoldingTile({super.key, required this.holding, this.thisYearIncome});
 
-  final DividendModel dividend;
-  final HoldingModel? holding;
+  final HoldingModel holding;
+  final double? thisYearIncome; // DividendBloc'tan gelen bu yılki gelir
 
   @override
   Widget build(BuildContext context) {
     final isDark = DeviceUtils.isDarkMode(context);
-    final companyId = holding?.companyId ?? '???';
-    final companyName = holding?.companyName ?? 'Unknown';
-    final symbol = dividend.currencyCode.isEmpty
-        ? MoneyX.symbolOf(dividend.currencyCode)
+    final currencySymbol = holding.currencyCode != null
+        ? MoneyX.symbolOf(holding.currencyCode!)
         : '';
-    final isCalculateMode = dividend.dividendPerShare > 0;
+    final totalCost = (holding.avgCost ?? 0) * holding.shares;
+    final income = thisYearIncome ?? 0.0;
 
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
           context,
-          AppRoutes.dividendDetail,
-          arguments: {'dividend': dividend, 'holding': holding},
+          AppRoutes.holdingDetail,
+          arguments: {'holding': holding},
         );
       },
       child: Container(
@@ -57,24 +55,23 @@ class DividendTile extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: AppText(
-              text: companyId.length > 4
-                  ? companyId.substring(0, 4)
-                  : companyId,
+              text: holding.companyId.length > 4
+                  ? holding.companyId.substring(0, 4)
+                  : holding.companyId,
               type: AppTextType.labelSmall,
               color: AppColors.primary,
               fontWeight: FontWeight.w800,
             ),
           ),
           title: AppText(
-            text: companyName,
+            text: holding.companyName,
             type: AppTextType.titleMedium,
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
           subtitle: AppText(
-            text: isCalculateMode
-                ? '${dividend.sharesAtPayDate.toStringAsFixed(0)} Shares · ${_formatDate(dividend.payDate)}'
-                : 'Net Amount · ${_formatDate(dividend.payDate)}',
+            text:
+                '${holding.shares.toStringAsFixed(0)} Shares · $currencySymbol${totalCost.toStringAsFixed(2)}',
             type: AppTextType.labelMedium,
             color: isDark
                 ? AppColors.textSecondaryDark
@@ -85,7 +82,7 @@ class DividendTile extends StatelessWidget {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: '$symbol${dividend.netAmount.toStringAsFixed(2)}\n',
+                  text: '$currencySymbol${income.toStringAsFixed(2)}\n',
                   style: AppTextTheme.textTheme.titleMedium!.copyWith(
                     color: isDark
                         ? AppColors.textPrimaryDark
@@ -94,7 +91,7 @@ class DividendTile extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'Received',
+                  text: 'This year',
                   style: AppTextTheme.textTheme.labelSmall!.copyWith(
                     color: isDark
                         ? AppColors.textSecondaryDark
@@ -107,9 +104,5 @@ class DividendTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year}';
   }
 }
