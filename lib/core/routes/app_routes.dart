@@ -10,4 +10,5 @@ class AppRoutes {
   static const addDividend = '/add_dividend';
   static const addHolding = '/add_holding';
   static const editHolding = '/edit_holding';
+  static const editDividend = '/edit-dividend';
 }

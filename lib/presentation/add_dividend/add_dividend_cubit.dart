@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../data/model/dividend_model.dart';
 import '../../../data/model/holding_model.dart';
 import '../../bloc/holding_bloc/holding_bloc.dart';
 import '../../bloc/holding_bloc/holding_event.dart';
@@ -43,22 +44,41 @@ class AddDividendCubit extends Cubit<AddDividendState> {
   final divPerShareCtrl = TextEditingController();
   final notesCtrl = TextEditingController();
 
-  void setMode(bool calculateMode) {
-    emit(state.copyWith(calculateMode: calculateMode));
-  }
-
-  void setPayDate(DateTime date) {
-    emit(state.copyWith(payDate: date));
-  }
-
-  void setHolding(HoldingModel holding) {
-    emit(state.copyWith(selectedHolding: holding));
-  }
+  void setMode(bool calculateMode) =>
+      emit(state.copyWith(calculateMode: calculateMode));
+  void setPayDate(DateTime date) => emit(state.copyWith(payDate: date));
+  void setHolding(HoldingModel holding) =>
+      emit(state.copyWith(selectedHolding: holding));
 
   void updateCalculatedNet() {
     final shares = double.tryParse(sharesCtrl.text.trim()) ?? 0;
     final divPerShare = double.tryParse(divPerShareCtrl.text.trim()) ?? 0;
     emit(state.copyWith(calculatedNet: shares * divPerShare));
+  }
+
+  // ← edit modu için eklendi
+  void initFromDividend(DividendModel dividend, HoldingModel? holding) {
+    final isCalculateMode = dividend.dividendPerShare > 0;
+
+    if (isCalculateMode) {
+      sharesCtrl.text = dividend.sharesAtPayDate.toStringAsFixed(0);
+      divPerShareCtrl.text = dividend.dividendPerShare.toString();
+    } else {
+      netAmountCtrl.text = dividend.netAmount.toStringAsFixed(2);
+    }
+
+    notesCtrl.text = dividend.notes ?? '';
+
+    emit(
+      AddDividendState(
+        calculateMode: isCalculateMode,
+        payDate: dividend.payDate,
+        selectedHolding: holding,
+        calculatedNet: isCalculateMode
+            ? dividend.sharesAtPayDate * dividend.dividendPerShare
+            : 0.0,
+      ),
+    );
   }
 
   void reset() {

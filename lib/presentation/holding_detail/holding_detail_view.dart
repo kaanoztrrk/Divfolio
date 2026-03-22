@@ -4,6 +4,7 @@ import 'package:divfolio/core/utils/money_extension.dart';
 import 'package:divfolio/data/model/holding_model.dart';
 import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:divfolio/widget/text/app_text.dart';
+import 'package:divfolio/widget/tile/dividend_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,6 +41,7 @@ class HoldingDetailView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+
         title: AppText(
           text: holding.companyName,
           type: AppTextType.titleMedium,
@@ -205,23 +207,14 @@ class HoldingDetailView extends StatelessWidget {
                         separatorBuilder: (_, __) =>
                             const SizedBox(height: AppSizes.spaceSM),
                         itemBuilder: (context, i) {
-                          final d = dividends[i];
+                          final dividends = [...dState.dividends]
+                            ..sort(
+                              (a, b) => b.payDate.compareTo(a.payDate),
+                            ); // ← en yeni üstte
 
-                          final bool isCalculateMode = d.dividendPerShare > 0;
-
-                          return DividendHistoryItemTile(
-                            date: _formatDate(d.payDate),
-                            periodLabel: d.currencyCode.toUpperCase(),
-                            title: "Dividend Payout",
-                            amount:
-                                '$currencySymbol${d.netAmount.toStringAsFixed(2)}',
-                            sharesText: isCalculateMode
-                                ? '${d.sharesAtPayDate.toStringAsFixed(0)} Shares'
-                                : 'Net Amount',
-                            perShareText: isCalculateMode
-                                ? '$currencySymbol${d.dividendPerShare.toStringAsFixed(4)} / share'
-                                : '—',
-                            isActive: i == 0,
+                          return DividendTile(
+                            dividend: dividends[i],
+                            holding: holding,
                           );
                         },
                       ),

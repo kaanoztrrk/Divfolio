@@ -1,5 +1,6 @@
 import 'package:divfolio/core/constants/app_colors.dart';
 import 'package:divfolio/core/constants/app_size.dart';
+import 'package:divfolio/core/routes/app_routes.dart';
 import 'package:divfolio/core/theme/custom/text_theme.dart';
 import 'package:divfolio/core/utils/device_utility.dart';
 import 'package:divfolio/data/model/dividend_model.dart';
@@ -26,92 +27,26 @@ import 'widget/mode_tabbar.dart';
 import 'widget/net_amount_section.dart';
 
 class AddDividendView extends StatelessWidget {
-  const AddDividendView({super.key});
+  const AddDividendView({super.key, this.editingDividend, this.editingHolding});
+
+  final DividendModel? editingDividend;
+  final HoldingModel? editingHolding;
+
+  bool get isEditMode => editingDividend != null;
 
   @override
   Widget build(BuildContext context) {
     final isDark = DeviceUtils.isDarkMode(context);
-    void _save(
-      BuildContext context,
-      AddDividendState cubitState,
-      PortfolioState portfolioState,
-    ) {
-      final cubit = context.read<AddDividendCubit>();
-      final holding = cubitState.selectedHolding;
-      final pid = holding?.portfolioId ?? portfolioState.selectedPortfolioId;
-      final currency =
-          portfolioState.selectedPortfolio?.baseCurrencyCode ?? 'USD';
-
-      if (holding == null || pid == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select a holding.")),
-        );
-        return;
-      }
-
-      double? netOverride;
-      double? shares;
-      double? divPerShare;
-
-      if (cubitState.calculateMode) {
-        shares = double.tryParse(cubit.sharesCtrl.text.trim());
-        divPerShare = double.tryParse(cubit.divPerShareCtrl.text.trim());
-        if (shares == null || divPerShare == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Enter both shares and dividend per share."),
-            ),
-          );
-          return;
-        }
-      } else {
-        netOverride = double.tryParse(cubit.netAmountCtrl.text.trim());
-        if (netOverride == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Enter the net amount received.")),
-          );
-          return;
-        }
-      }
-
-      final now = DateTime.now();
-      final dividend = DividendModel(
-        id: const Uuid().v4(),
-        portfolioId: pid,
-        holdingId: holding.id,
-        payDate: cubitState.payDate,
-        sharesAtPayDate: shares ?? holding.shares,
-        dividendPerShare: divPerShare ?? 0,
-        currencyCode: currency,
-        netOverride: netOverride,
-        notes: cubit.notesCtrl.text.trim().isEmpty
-            ? null
-            : cubit.notesCtrl.text.trim(),
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      context.read<DividendBloc>().add(UpsertDividend(dividend));
-      Navigator.pop(context);
-    }
-
-    void _openHoldingPicker(BuildContext context) async {
-      final selected = await showModalBottomSheet<HoldingModel>(
-        context: context,
-        showDragHandle: true,
-        builder: (_) => BlocProvider.value(
-          value: context.read<HoldingBloc>(),
-          child: const SelectHoldingSheet(),
-        ),
-      );
-      if (selected != null) {
-        context.read<AddDividendCubit>().setHolding(selected);
-      }
-    }
 
     return BlocProvider(
-      create: (context) =>
-          AddDividendCubit()..initHoldings(context.read<HoldingBloc>()),
+      create: (context) {
+        final cubit = AddDividendCubit()
+          ..initHoldings(context.read<HoldingBloc>());
+        if (editingDividend != null) {
+          cubit.initFromDividend(editingDividend!, editingHolding);
+        }
+        return cubit;
+      },
       child: BlocBuilder<PortfolioBloc, PortfolioState>(
         builder: (context, portfolioState) {
           final currencySymbol = MoneyX.symbolOf(
@@ -129,8 +64,13 @@ class AddDividendView extends StatelessWidget {
                     appBar: AppBar(
                       elevation: 0,
                       centerTitle: true,
-                      title: const AppText(
-                        text: 'Add Dividend',
+                      scrolledUnderElevation: 0,
+                      surfaceTintColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      title: AppText(
+                        text: isEditMode
+                            ? 'Edit Dividend'
+                            : 'Add Dividend', // ← değişti
                         type: AppTextType.titleMedium,
                       ),
                     ),
@@ -141,7 +81,9 @@ class AddDividendView extends StatelessWidget {
                           vertical: AppSizes.spaceSM,
                         ),
                         child: PrimaryButton(
-                          label: "Save Dividend",
+                          label: isEditMode
+                              ? "Save Changes"
+                              : "Save Dividend", // ← değişti
                           onPressed: () =>
                               _save(context, cubitState, portfolioState),
                         ),
@@ -158,7 +100,6 @@ class AddDividendView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ---- MAIN CARD ----
                             Container(
                               width: double.infinity,
                               decoration: BoxDecoration(
@@ -183,7 +124,6 @@ class AddDividendView extends StatelessWidget {
                               ),
                               child: Column(
                                 children: [
-                                  // Holding seç
                                   Padding(
                                     padding: const EdgeInsets.all(
                                       AppSizes.spaceMD,
@@ -200,17 +140,19 @@ class AddDividendView extends StatelessWidget {
                                           )
                                         : SelectField(
                                             title: "Company",
+                                            // ← edit modunda holding değiştirilemez
                                             value:
                                                 cubitState.selectedHolding !=
                                                     null
                                                 ? "${cubitState.selectedHolding!.companyName} (${cubitState.selectedHolding!.companyId})"
                                                 : "Select a holding",
-                                            onTap: () =>
-                                                _openHoldingPicker(context),
+                                            onTap: isEditMode
+                                                ? () {} // edit modunda tıklanmaz
+                                                : () => _openHoldingPicker(
+                                                    context,
+                                                  ),
                                           ),
                                   ),
-
-                                  // Pay date
                                   Padding(
                                     padding: const EdgeInsets.all(
                                       AppSizes.spaceMD,
@@ -220,8 +162,6 @@ class AddDividendView extends StatelessWidget {
                                       onChanged: cubit.setPayDate,
                                     ),
                                   ),
-
-                                  // Mode toggle
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: AppSizes.spaceMD,
@@ -253,16 +193,13 @@ class AddDividendView extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-
                                   const SizedBox(height: AppSizes.spaceMD),
-
                                   if (!cubitState.calculateMode)
                                     NetAmountSection(
                                       controller: cubit.netAmountCtrl,
                                       currencySymbol: currencySymbol,
                                       isDark: isDark,
                                     ),
-
                                   if (cubitState.calculateMode)
                                     CalculateSection(
                                       sharesCtrl: cubit.sharesCtrl,
@@ -275,13 +212,10 @@ class AddDividendView extends StatelessWidget {
                                       onDivPerShareChanged: (_) =>
                                           cubit.updateCalculatedNet(),
                                     ),
-
                                   const SizedBox(height: AppSizes.spaceMD),
                                 ],
                               ),
                             ),
-
-                            // ---- NOTES ----
                             const SizedBox(height: AppSizes.spaceXL),
                             AppText(
                               text: "NOTES",
@@ -324,7 +258,6 @@ class AddDividendView extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                             const SizedBox(height: AppSizes.spaceXXL),
                           ],
                         ),
@@ -338,5 +271,87 @@ class AddDividendView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  void _openHoldingPicker(BuildContext context) async {
+    final selected = await showModalBottomSheet<HoldingModel>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => BlocProvider.value(
+        value: context.read<HoldingBloc>(),
+        child: const SelectHoldingSheet(),
+      ),
+    );
+    if (selected != null) {
+      context.read<AddDividendCubit>().setHolding(selected);
+    }
+  }
+
+  void _save(
+    BuildContext context,
+    AddDividendState cubitState,
+    PortfolioState portfolioState,
+  ) {
+    final cubit = context.read<AddDividendCubit>();
+    final holding = cubitState.selectedHolding;
+    final pid = holding?.portfolioId ?? portfolioState.selectedPortfolioId;
+    final currency =
+        portfolioState.selectedPortfolio?.baseCurrencyCode ?? 'USD';
+
+    if (holding == null || pid == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a holding.")));
+      return;
+    }
+
+    double? netOverride;
+    double? shares;
+    double? divPerShare;
+
+    if (cubitState.calculateMode) {
+      shares = double.tryParse(cubit.sharesCtrl.text.trim());
+      divPerShare = double.tryParse(cubit.divPerShareCtrl.text.trim());
+      if (shares == null || divPerShare == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enter both shares and dividend per share."),
+          ),
+        );
+        return;
+      }
+    } else {
+      netOverride = double.tryParse(cubit.netAmountCtrl.text.trim());
+      if (netOverride == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Enter the net amount received.")),
+        );
+        return;
+      }
+    }
+
+    final now = DateTime.now();
+    final dividend = DividendModel(
+      id: isEditMode
+          ? editingDividend!.id
+          : const Uuid().v4(), // ← edit modunda aynı id
+      portfolioId: pid,
+      holdingId: holding.id,
+      payDate: cubitState.payDate,
+      sharesAtPayDate: shares ?? holding.shares,
+      dividendPerShare: divPerShare ?? 0,
+      currencyCode: currency,
+      netOverride: netOverride,
+      notes: cubit.notesCtrl.text.trim().isEmpty
+          ? null
+          : cubit.notesCtrl.text.trim(),
+      createdAt: isEditMode
+          ? editingDividend!.createdAt
+          : now, // ← orijinal createdAt korunur
+      updatedAt: now,
+    );
+
+    context.read<DividendBloc>().add(UpsertDividend(dividend));
+    Navigator.popUntil(context, (route) => route.isFirst);
   }
 }

@@ -10,6 +10,9 @@ ThemeData appTheme = ThemeData(
     backgroundColor: AppColors.background,
     foregroundColor: AppColors.textPrimary,
     elevation: 0,
+    surfaceTintColor: Colors.transparent,
+    shadowColor: Colors.transparent,
+    scrolledUnderElevation: 0,
   ),
   colorScheme: ColorScheme.light(
     primary: AppColors.primary,
@@ -26,6 +29,9 @@ ThemeData appThemeDark = ThemeData(
     backgroundColor: AppColors.backgroundDark,
     foregroundColor: AppColors.textPrimaryDark,
     elevation: 0,
+    surfaceTintColor: Colors.transparent,
+    shadowColor: Colors.transparent,
+    scrolledUnderElevation: 0,
   ),
   colorScheme: const ColorScheme.dark(
     primary: AppColors.primary,

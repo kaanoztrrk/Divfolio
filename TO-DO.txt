@@ -8,7 +8,6 @@
 5- Portfolio para birimine göre dividend ekleme ve holding ekleme kısı değişmeli. Sadece USD olmamalı
 
 //* - DIVIDEND
-1- Dividend detay sayfası Scroll sorunu
 2- Dividend Düzenleme ve silme ekle
 3- Dividend ekleme sayfasında Net Amount ve Calculate seçeneğinin UI düzenle
 4- Dividend ekleme sayfasında Calculate seçeneğinde fieldları düzelt. 

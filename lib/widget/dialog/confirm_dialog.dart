@@ -33,7 +33,6 @@ class ConfirmDialog extends StatelessWidget {
   final Color? confirmColor;
   final VoidCallback onConfirm;
 
-  /// Dialog'u gösterir. [onConfirm] callback'i Navigator.pop'tan önce çağrılır.
   static Future<void> show({
     required BuildContext context,
     required String title,

@@ -85,7 +85,21 @@ class AppRouter {
             child: const AddDividendView(),
           ),
         );
-
+      case AppRoutes.editDividend:
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<PortfolioBloc>()),
+              BlocProvider.value(value: getIt<HoldingBloc>()),
+              BlocProvider.value(value: getIt<DividendBloc>()),
+            ],
+            child: AddDividendView(
+              editingDividend: args['dividend'] as DividendModel,
+              editingHolding: args['holding'] as HoldingModel?, // ← ekle
+            ),
+          ),
+        );
       case AppRoutes.addHolding:
         return MaterialPageRoute(
           builder: (context) => MultiBlocProvider(

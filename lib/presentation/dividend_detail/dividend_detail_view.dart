@@ -4,11 +4,15 @@ import 'package:divfolio/data/model/dividend_model.dart';
 import 'package:divfolio/data/model/holding_model.dart';
 import 'package:divfolio/widget/text/app_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../bloc/dividend_bloc/dividend_bloc.dart';
+import '../../bloc/dividend_bloc/dividend_event.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/custom/text_theme.dart';
+import '../../widget/dialog/confirm_dialog.dart';
 import '../main/pages/dashboard/widget/portfolio_stats_row.dart';
 import 'widget/stat_detail_row.dart';
 
@@ -45,10 +49,63 @@ class DividendDetailView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: const AppText(
           text: "Dividend Details",
           type: AppTextType.titleMedium,
         ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'edit') {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.editDividend,
+                  arguments: {'dividend': dividend, 'holding': holding},
+                );
+              } else if (value == 'delete') {
+                ConfirmDialog.show(
+                  context: context,
+                  title: 'Delete Dividend',
+                  message: 'This dividend record will be permanently deleted.',
+                  confirmLabel: 'Delete',
+                  confirmColor: AppColors.error,
+                  onConfirm: () {
+                    context.read<DividendBloc>().add(
+                      DeleteDividend(dividend.id),
+                    );
+                    Navigator.pop(context);
+                  },
+                );
+              }
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit_outlined),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline_rounded, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: AppSizes.spaceMD),
@@ -82,6 +139,7 @@ class DividendDetailView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppText(text: companyName, type: AppTextType.titleLarge),
+                      SizedBox(height: AppSizes.spaceXS),
                       AppText(
                         text: _formatDate(dividend.payDate),
                         type: AppTextType.labelMedium,
@@ -151,10 +209,7 @@ class DividendDetailView extends StatelessWidget {
                   StatDetailItem(title: "Notes", value: dividend.notes!),
               ],
             ),
-
             const SizedBox(height: AppSizes.space3XL),
-
-            // Net Amount kartı
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
@@ -203,86 +258,6 @@ class DividendDetailView extends StatelessWidget {
                 ],
               ),
             ),
-
-            const SizedBox(height: AppSizes.spaceXXL),
-
-            // Dividend history linki
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.holdingDetail,
-                  arguments: {'holding': holding},
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSizes.spaceMD,
-                  horizontal: AppSizes.spaceLG,
-                ),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceDark
-                      : AppColors.overlay.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-                  border: Border.all(
-                    color: isDark ? AppColors.borderDark : AppColors.border,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppSizes.spaceSM),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.surface.withValues(alpha: 0.1)
-                            : AppColors.surface,
-                        borderRadius: BorderRadius.circular(
-                          AppSizes.radiusCircle,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.textPrimary.withValues(
-                              alpha: 0.05,
-                            ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.history,
-                        size: AppSizes.iconLG,
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: AppSizes.spaceMD),
-                    Expanded(
-                      child: AppText(
-                        text: "Holding & Dividend History",
-                        type: AppTextType.titleMedium,
-                        color: isDark
-                            ? AppColors.textPrimaryDark
-                            : AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: AppSizes.iconSM,
-                      color: isDark
-                          ? AppColors.textPrimaryDark
-                          : AppColors.textPrimary,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: AppSizes.spaceXXL),
           ],
         ),
       ),
