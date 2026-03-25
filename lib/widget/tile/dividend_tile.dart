@@ -26,8 +26,8 @@ class DividendTile extends StatelessWidget {
     final isDark = DeviceUtils.isDarkMode(context);
     final companyId = holding?.companyId ?? '???';
     final companyName = holding?.companyName ?? 'Unknown';
-    final symbol = dividend.currencyCode.isNotEmpty
-        ? MoneyX.symbolOf(dividend.currencyCode)
+    final symbol = holding?.currencyCode != null
+        ? MoneyX.symbolOf(holding!.currencyCode!)
         : '';
     final isCalculateMode = dividend.dividendPerShare > 0;
 

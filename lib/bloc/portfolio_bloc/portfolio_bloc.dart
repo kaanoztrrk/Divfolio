@@ -17,6 +17,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   final LogService _log = LogService.instance;
   final _uuid = const Uuid();
   late final StreamSubscription<void> _watchSub;
+  bool _isMutating = false;
 
   PortfolioBloc({
     required PortfolioRepository portfolioRepository,
@@ -32,6 +33,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     on<DeletePortfolio>(_onDeletePortfolio);
     on<ResetPortfolioState>((_, emit) => emit(const PortfolioState()));
     _watchSub = _repository.watchChanges().listen((_) {
+      if (_isMutating) return;
       add(LoadPortfolios());
     });
   }
@@ -109,12 +111,11 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     DeletePortfolio event,
     Emitter<PortfolioState> emit,
   ) async {
+    _isMutating = true;
     emit(state.copyWith(loading: true, clearError: true));
     try {
-      // 1. Bu portfolio'nun tüm holding'lerini al
       final holdings = await _holdingRepository.getHoldings(event.portfolioId);
 
-      // 2. Her holding'in dividend'lerini sil
       for (final holding in holdings) {
         final dividends = await _dividendRepository.getDividendsByCompany(
           portfolioId: event.portfolioId,
@@ -129,7 +130,6 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
         );
       }
 
-      // 3. Holding'leri sil
       for (final holding in holdings) {
         await _holdingRepository.deleteHolding(holding.id);
       }
@@ -138,10 +138,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
         tag: 'PORTFOLIO',
       );
 
-      // 4. Portfolio'yu sil
       await _repository.deletePortfolio(event.portfolioId);
-
-      // 5. Gerekirse default portfolio oluştur
       await _ensureDefaultPortfolio();
 
       final list = await _repository.getPortfolios();
@@ -165,11 +162,11 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     } catch (e, s) {
       _log.error("❌ DeletePortfolio: $e", tag: 'PORTFOLIO', stackTrace: s);
       emit(state.copyWith(loading: false, error: e.toString()));
+    } finally {
+      _isMutating = false; // hata olsa da olmasa da serbest bırak
     }
   }
 
-  /// UUID ile default portfolio oluşturur.
-  /// Hardcoded "main_id" yerine her cihazda benzersiz ID üretilir.
   Future<void> _ensureDefaultPortfolio() async {
     final list = await _repository.getPortfolios();
     if (list.isNotEmpty) return;
@@ -177,7 +174,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     final now = DateTime.now();
     await _repository.upsertPortfolio(
       PortfolioModel(
-        id: _uuid.v4(),
+        id: 'main_id',
         name: 'Main Portfolio',
         baseCurrencyCode: 'USD',
         createdAt: now,

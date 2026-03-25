@@ -66,6 +66,11 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
     try {
       final list = await _repository.getDividends(event.portfolioId);
       final totals = _groupByCurrency(list);
+      final byCompanyByCurrency =
+          await _repository // ← ekle
+              .getNetDividendsByCompanyByCurrency(
+                portfolioId: event.portfolioId,
+              );
 
       emit(
         state.copyWith(
@@ -74,12 +79,8 @@ class DividendBloc extends Bloc<DividendEvent, DividendState> {
           selectedPortfolioId: event.portfolioId,
           clearCompanyFilter: true,
           totalsByCurrency: totals,
+          byCompanyByCurrency: byCompanyByCurrency, // ← ekle
         ),
-      );
-
-      _log.debug(
-        "✅ Dividends loaded | count=${list.length} | currencies=${totals.keys}",
-        tag: 'DIVIDEND',
       );
     } catch (e, s) {
       _log.error("❌ LoadDividends: $e", tag: 'DIVIDEND', stackTrace: s);

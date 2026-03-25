@@ -69,11 +69,10 @@ class PortfolioDetailView extends StatelessWidget {
                   const Spacer(),
                   PrimaryButton(
                     label: "Add Holding",
-                    onPressed: () => Navigator.push(
+                    onPressed: () => Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddDividendView(),
-                      ),
+                      AppRoutes.addHolding,
+                      arguments: portfolio,
                     ),
                   ),
                   const SizedBox(height: AppSizes.spaceXXL),
@@ -176,43 +175,50 @@ class PortfolioDetailView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: AppText(
-                          text: h.companyName,
-                          type: AppTextType.bodyMedium,
-                        ),
-                        subtitle: AppText(
-                          text: h.companyId,
-                          type: AppTextType.labelMedium,
-                          color: AppColors.textSecondary,
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            AppText(
-                              text:
-                                  '$currencySymbol${holdingIncome.toStringAsFixed(2)}',
-                              type: AppTextType.bodyMedium,
-                              color: isDark
-                                  ? AppColors.textPrimaryDark
-                                  : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            AppText(
-                              text: 'this year',
-                              type: AppTextType.labelSmall,
-                              color: AppColors.textSecondary,
-                            ),
-                          ],
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.holdingDetail,
+                            arguments: {'holding': h},
+                          );
+                        },
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: AppText(
+                            text: h.companyName,
+                            type: AppTextType.bodyMedium,
+                          ),
+                          subtitle: AppText(
+                            text: h.companyId,
+                            type: AppTextType.labelMedium,
+                            color: AppColors.textSecondary,
+                          ),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AppText(
+                                text:
+                                    '$currencySymbol${holdingIncome.toStringAsFixed(2)}',
+                                type: AppTextType.bodyMedium,
+                                color: isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              AppText(
+                                text: 'this year',
+                                type: AppTextType.labelSmall,
+                                color: AppColors.textSecondary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }),
-
                   SizedBox(height: AppSizes.spaceXXL),
-
                   PrimaryButton(
                     label: "Add Dividend",
                     onPressed: () => Navigator.push(

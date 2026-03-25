@@ -15,7 +15,6 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_size.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/utils/empty_state.dart';
-import '../../widget/tile/dividend_history_tile.dart';
 import 'widget/mini_status.dart';
 
 class HoldingDetailView extends StatelessWidget {

@@ -3,7 +3,6 @@ import 'package:divfolio/widget/button/primary_button.dart';
 import 'package:divfolio/widget/field/select_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../bloc/portfolio_bloc/portfolio_bloc.dart';
 import '../../bloc/portfolio_bloc/portfolio_event.dart';
@@ -15,19 +14,30 @@ import '../../data/model/portfolio_model.dart';
 import '../../widget/text/app_text.dart';
 import '../field/app_label_field.dart';
 
-class CreatePortfolioSheet extends StatefulWidget {
-  const CreatePortfolioSheet({super.key});
+class EditPortfolioSheet extends StatefulWidget {
+  const EditPortfolioSheet({super.key, required this.portfolio});
+
+  final PortfolioModel portfolio;
 
   @override
-  State<CreatePortfolioSheet> createState() => _CreatePortfolioSheetState();
+  State<EditPortfolioSheet> createState() => _EditPortfolioSheetState();
 }
 
-class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
-  final TextEditingController _nameCtrl = TextEditingController();
-  final _uuid = const Uuid();
+class _EditPortfolioSheetState extends State<EditPortfolioSheet> {
+  late final TextEditingController _nameCtrl;
+  late CurrencyModel _selectedCurrency;
 
-  // Hard-coded liste kaldırıldı → tek kaynak: CurrencyDefaults
-  CurrencyModel _selectedCurrency = CurrencyDefaults.list.first;
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.portfolio.name);
+
+    // Mevcut portfolio currency'sini seç, bulunamazsa ilk currency
+    _selectedCurrency = CurrencyDefaults.list.firstWhere(
+      (c) => c.code == widget.portfolio.baseCurrencyCode,
+      orElse: () => CurrencyDefaults.list.first,
+    );
+  }
 
   @override
   void dispose() {
@@ -53,20 +63,19 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppLabeledField(
-              title: "Create Portfolio",
+              title: "Edit Portfolio",
               controller: _nameCtrl,
               hintText: "Portfolio Name",
             ),
             const SizedBox(height: AppSizes.spaceMD),
             SelectField(
               title: "Select Currency",
-              // Kullanıcıya sembol + kod göster: "$ USD"
               value: '${_selectedCurrency.symbol} ${_selectedCurrency.code}',
               onTap: _openCurrencyPicker,
             ),
             const SizedBox(height: AppSizes.spaceMD),
             PrimaryButton(
-              label: "Done",
+              label: "Save Changes",
               onPressed: () {
                 final name = _nameCtrl.text.trim();
                 if (name.isEmpty) return;
@@ -75,14 +84,11 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
 
                 context.read<PortfolioBloc>().add(
                   UpsertPortfolio(
-                    PortfolioModel(
-                      id: _uuid.v4(),
+                    // Mevcut portfolio'yu güncelle — id ve createdAt korunur
+                    widget.portfolio.copyWith(
                       name: name,
-                      baseCurrencyCode:
-                          _selectedCurrency.code, // ← CurrencyModel'den
-                      createdAt: now,
+                      baseCurrencyCode: _selectedCurrency.code,
                       updatedAt: now,
-                      notes: null,
                     ),
                   ),
                 );
@@ -116,20 +122,16 @@ class _CreatePortfolioSheetState extends State<CreatePortfolioSheet> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // CurrencyDefaults.list'ten besleniyor
             ...CurrencyDefaults.list.map(
               (currency) => ListTile(
-                // Sembol + kod: "$ USD"
                 leading: AppText(
                   text: currency.symbol,
                   type: AppTextType.titleLarge,
                 ),
-                // Tam isim: "US Dollar"
                 title: AppText(
                   text: currency.code,
                   type: AppTextType.bodyLarge,
                 ),
-                // Kısa kod sağda: "USD"
                 subtitle: AppText(
                   text: currency.name.toString(),
                   type: AppTextType.bodySmall,

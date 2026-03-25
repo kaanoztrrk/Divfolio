@@ -16,7 +16,7 @@ import 'widget/holding_cost_summary.dart';
 
 class AddHoldingView extends StatefulWidget {
   const AddHoldingView({super.key, this.editingHolding});
-  final HoldingModel? editingHolding; // null → create, dolu → edit
+  final HoldingModel? editingHolding;
 
   @override
   State<AddHoldingView> createState() => _AddHoldingViewState();
@@ -35,7 +35,6 @@ class _AddHoldingViewState extends State<AddHoldingView> {
     _sharesCtrl.addListener(() => setState(() {}));
     _avgCostCtrl.addListener(() => setState(() {}));
 
-    // Edit modunda field'ları doldur
     final h = widget.editingHolding;
     if (h != null) {
       _sharesCtrl.text = h.shares.toString();
@@ -165,7 +164,7 @@ class _AddHoldingViewState extends State<AddHoldingView> {
                       const SizedBox(width: AppSizes.spaceMD),
                       Expanded(
                         child: MiniInputField(
-                          title: "AVG. COST (\$)",
+                          title: "AVG. COST (${state.currencySymbol})",
                           controller: _avgCostCtrl,
                           hintText: "150.00",
                           keyboardType: const TextInputType.numberWithOptions(
@@ -185,7 +184,7 @@ class _AddHoldingViewState extends State<AddHoldingView> {
                   HoldingCostSummary(
                     shares: double.tryParse(_sharesCtrl.text) ?? 0,
                     avgCost: double.tryParse(_avgCostCtrl.text) ?? 0,
-                    currencySymbol: "\$",
+                    currencySymbol: state.currencySymbol,
                   ),
                   const SizedBox(height: AppSizes.spaceXL),
                   PortfolioSelectField(

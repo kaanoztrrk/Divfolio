@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/model/holding_model.dart';
 import '../../data/repository/dividend_repository.dart';
 import '../../data/repository/holding_repository.dart';
+import '../../service/currency_service.dart';
 import '../../service/log_service.dart';
 import 'holding_event.dart';
 import 'holding_state.dart';
 
 class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
   final HoldingRepository _repository;
+  final CurrencyService _currencyService;
   final DividendRepository _dividendRepository;
   final LogService _log = LogService.instance;
   late final StreamSubscription<void> _watchSub;
@@ -17,8 +19,10 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
   HoldingBloc({
     required HoldingRepository holdingRepository,
     required DividendRepository dividendRepository,
+    required CurrencyService currencyService,
   }) : _repository = holdingRepository,
        _dividendRepository = dividendRepository,
+       _currencyService = currencyService,
        super(const HoldingState()) {
     on<LoadHoldings>(_onLoadHoldings);
     on<UpdateHoldingForm>(_onUpdateHoldingForm);
@@ -61,10 +65,20 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
     }
   }
 
-  void _onUpdateHoldingForm(
+  Future<void> _onUpdateHoldingForm(
     UpdateHoldingForm event,
     Emitter<HoldingState> emit,
-  ) {
+  ) async {
+    String newCurrencyCode = state.currencyCode;
+
+    if (event.portfolioId != null &&
+        event.portfolioId != state.selectedPortfolioId) {
+      final currency = await _currencyService.getCurrencyForPortfolio(
+        event.portfolioId!,
+      );
+      newCurrencyCode = currency.code;
+    }
+
     emit(
       HoldingState(
         loading: state.loading,
@@ -75,7 +89,7 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
         companyName: event.companyName ?? state.companyName,
         shares: event.shares ?? state.shares,
         avgCost: event.avgCost ?? state.avgCost,
-        currencyCode: event.currencyCode ?? state.currencyCode,
+        currencyCode: event.currencyCode ?? newCurrencyCode,
         holdings: state.holdings,
       ),
     );
@@ -206,7 +220,7 @@ class HoldingBloc extends Bloc<HoldingEvent, HoldingState> {
         companyName: '',
         shares: 0,
         avgCost: null,
-        currencyCode: 'USD',
+
         clearError: true,
       ),
     );

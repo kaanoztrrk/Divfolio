@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../core/init/currency_init.dart';
 import '../../data/model/holding_model.dart';
 
 class HoldingState extends Equatable {
@@ -25,7 +26,6 @@ class HoldingState extends Equatable {
     this.currencyCode = 'USD',
     this.holdings = const [],
   });
-  // payDate KALDIRILDI → DividendModel'e ait
 
   HoldingState copyWith({
     bool? loading,
@@ -70,6 +70,16 @@ class HoldingState extends Equatable {
     currencyCode,
     holdings,
   ];
+
+  // HoldingState içine ekle
+  String get currencySymbol {
+    return CurrencyDefaults.list
+        .firstWhere(
+          (c) => c.code == currencyCode,
+          orElse: () => CurrencyDefaults.list.first,
+        )
+        .symbol;
+  }
 }
 
 const _sentinel = Object();

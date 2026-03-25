@@ -9,6 +9,7 @@ import 'package:divfolio/data/repository/portfolio_repository.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../data/repository/dividend_repository.dart';
+import '../../service/currency_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -37,6 +38,7 @@ Future<void> setupLocator() async {
     () => HoldingBloc(
       holdingRepository: getIt<HoldingRepository>(),
       dividendRepository: getIt<DividendRepository>(),
+      currencyService: getIt<CurrencyService>(),
     ),
   );
 
@@ -44,4 +46,9 @@ Future<void> setupLocator() async {
   getIt.registerLazySingleton<DateFormatCubit>(() => DateFormatCubit());
   getIt.registerLazySingleton<DecimalFormatCubit>(() => DecimalFormatCubit());
   getIt.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
+
+  //* Services
+  getIt.registerLazySingleton<CurrencyService>(
+    () => CurrencyService(getIt<PortfolioRepository>()),
+  );
 }

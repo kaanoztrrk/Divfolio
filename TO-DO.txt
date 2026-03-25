@@ -2,17 +2,7 @@
 //* - PORTFOLIO
 
 1- para birimi değiştirme sorununu ortadan kaldır.
-2- Portfolio detay sayfası scroll sorununu çöz
-3- Portfolio detay sayfası Holdings Detail Ekle
-4- Portfolio düzenleme ekle
 5- Portfolio para birimine göre dividend ekleme ve holding ekleme kısı değişmeli. Sadece USD olmamalı
-
-//* - DIVIDEND
-2- Dividend Düzenleme ve silme ekle
-3- Dividend ekleme sayfasında Net Amount ve Calculate seçeneğinin UI düzenle
-4- Dividend ekleme sayfasında Calculate seçeneğinde fieldları düzelt. 
-5- Dividend ekleme sayfasında reset kısmını kaldır
-
 
 //* - GENERAL
 2- Portfolio sınırlama getir (1 tane olabilir. gerisi abonelik usulu)
